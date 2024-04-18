@@ -1,0 +1,48 @@
+[tool.poetry]
+name = "backend"
+version = "0.1.0"
+description = ""
+authors = ["Schislyaev <pschhhh@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+uvicorn = "^0.27.1"
+cashews = "^7.0.0"
+fastapi = "^0.110.0"
+pydantic = {version = "^2.5.1", extras = ["email"]}
+pydantic-settings = "^2.2.1"
+aioredis = "^2.0.1"
+psycopg2-binary = "^2.9.9"
+asyncpg = "^0.29.0"
+orjson = "^3.9.15"
+asyncio = "^3.4.3"
+sqlalchemy = "^1.4"
+redis = "^5.0.3"
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+python-multipart = "^0.0.9"
+sqladmin = {extras = ["full"], version = "^0.16.1"}
+httpx = "^0.27.0"
+starlette-admin = "^0.13.2"
+pytz = "^2024.1"
+tzlocal = "^5.2"
+aiogram = "^3.4.1"
+discord = "^2.3.2"
+google-auth = "^2.29.0"
+google-auth-oauthlib = "^1.2.0"
+google-auth-httplib2 = "^0.2.0"
+google-api-python-client = "^2.124.0"
+aiosmtplib = "^3.0.1"
+yookassa = "^3.0.1"
+gunicorn = "^21.2.0"
+pydevd-pycharm = "^241.15989.57"
+
+[tool.poetry.group.dev.dependencies]
+isort = "^5.11.4"
+flake8 = "^6.0.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

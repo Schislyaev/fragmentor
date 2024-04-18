@@ -1,0 +1,71 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:14-alpine
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis
+    restart: always
+    environment:
+      - decode_responses=True
+
+  fastapi:
+    build:
+      context: .
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - postgres
+#    ports:
+#      - "8080:8080"
+
+  nginx:
+    image: nginx:latest
+    restart: always
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d/:ro
+    depends_on:
+      - fastapi
+      - tg
+    ports:
+      - "81:81"
+      - "443:443"
+
+  tg:
+    build:
+      context: .
+      dockerfile: tg_debug.Dockerfile
+    restart: always
+    env_file:
+      - .env
+    ports:
+#      - "8080:8080"
+#      - "80:80"
+#      - "443:443"
+      - "5679:5679"
+
+  discord:
+    build:
+      context: .
+      dockerfile: discord.Dockerfile
+    restart: always
+    env_file:
+      - .env
+#    ports:
+#      - "8080:8080"
+#      - "80:80"
+#      - "443:443"
+
+volumes:
+  db_data:

@@ -1,0 +1,31 @@
+version: '3.9'
+services:
+    logstash:
+        image: logstash:7.17.9
+        env_file:
+          .env.elk
+        ports:
+          - "12201:12201/udp"
+        volumes:
+          - ./deploy/logstash.conf:/config/logstash.conf:ro
+        command: logstash -f /config/logstash.conf
+        depends_on:
+          - elasticsearch
+
+    elasticsearch:
+        image: elasticsearch:7.17.9
+        env_file:
+          .env.elk
+        ports:
+          - "9200"
+        volumes:
+          - /tmp/esdata:/tmp/elasticsearch/data
+
+    kibana:
+        image: kibana:7.17.9
+        env_file:
+          .env.elk
+        ports:
+          - "5601:5601"
+        depends_on:
+          - elasticsearch
