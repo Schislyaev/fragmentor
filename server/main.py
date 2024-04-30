@@ -3,13 +3,8 @@ from contextlib import asynccontextmanager
 import uvicorn
 from cashews import cache
 from fastapi.applications import FastAPI
-from fastapi import BackgroundTasks
-from fastapi.responses import ORJSONResponse
+from fastapi.responses import ORJSONResponse, JSONResponse
 from starlette.requests import Request
-from fastapi.staticfiles import StaticFiles
-
-import sys
-import pathlib
 
 from core.fastapi_config import config
 from core.settings import settings
@@ -18,7 +13,6 @@ from db import redis
 from db.postgres import init_models, init_table
 from server.api.v11 import token, users, schedules, booking, payment
 from AdminPanel.admin_panel import get_admin_panel
-# from tg_services.security import JWTAuthMiddleware
 
 
 @asynccontextmanager
@@ -54,13 +48,20 @@ app = FastAPI(
     openapi_tags=[
         {
             'name': 'FragMentor Backend',
-            'description': 'Backend платформы. Реализуемый в текущий момент сервис: Авторизация'
+            'description': 'Backend платформы FragMentor.'
         },
     ]
 )
 
-# app.add_middleware(JWTAuthMiddleware)
-# app.mount("/statics", StaticFiles(directory="statics"), name="static")
+
+# @app.middleware("http")
+# async def add_from_cache_headers(request: Request, call_next):
+#     body = await request.body()
+#     # print(f"Request body: {body.decode()}")
+#     response = await call_next(request)
+#     return response
+
+
 app.include_router(users.router, prefix='/api/v11', tags=['USERS'])
 app.include_router(token.router, prefix='/api/v11', tags=['TOKENS'])
 app.include_router(schedules.router, prefix='/api/v11', tags=['SCHEDULES'])
@@ -68,6 +69,16 @@ app.include_router(booking.router, prefix='/api/v11', tags=['BOOKINGS'])
 # app.include_router(create_channel.router, prefix='/api/v11', tags=['DISCORD'])
 app.include_router(payment.router, prefix='/api/v11', tags=['PAYMENT'])
 
+
+@app.exception_handler(ValueError)
+async def value_error_handler(request: Request, exc: ValueError):
+    # Запись информации об ошибке в лог
+    # logging.error(f"ValueError occurred: {exc}")
+    # Возврат кастомного ответа на клиент
+    return JSONResponse(
+        status_code=400,
+        content={"message": str(exc)}
+    )
 
 # @app.middleware("http")
 # async def add_from_cache_headers(request: Request, call_next):
@@ -87,6 +98,8 @@ if __name__ == '__main__':
         'main:app',
         host='0.0.0.0',
         port=8080,
+        ws_ping_interval=30,
+        ws_ping_timeout=3000
         # log_config=log(__name__),
         # log_level=config.log_level,
     )

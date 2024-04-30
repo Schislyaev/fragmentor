@@ -7,7 +7,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-uvicorn = "^0.27.1"
+uvicorn = {extras = ["standard"], version = "^0.29.0"}
 cashews = "^7.0.0"
 fastapi = "^0.110.0"
 pydantic = {version = "^2.5.1", extras = ["email"]}
@@ -37,6 +37,8 @@ aiosmtplib = "^3.0.1"
 yookassa = "^3.0.1"
 gunicorn = "^21.2.0"
 pydevd-pycharm = "^241.15989.57"
+alembic = "^1.13.1"
+python-magic = "^0.4.27"
 
 [tool.poetry.group.dev.dependencies]
 isort = "^5.11.4"

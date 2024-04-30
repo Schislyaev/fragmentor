@@ -1,12 +1,14 @@
 # from cashews import cache
-from fastapi import APIRouter, Body, Depends, status
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, Body, Depends, status, HTTPException, UploadFile, File
+from fastapi.responses import JSONResponse, Response
 from pydantic import EmailStr
+from zoneinfo import ZoneInfo
 
 from core.settings import settings
 from server.api.schemas.user import Credentials, User
 from services.security import credentials_exception, oauth2_scheme, check_user
 from services.user import UserService, get_service
+import magic
 
 SECRET_KEY = settings.secret_key
 ALGORITHM = settings.algorithm
@@ -29,8 +31,8 @@ async def register(
         creds: Credentials = Body(...),
         user: UserService = Depends(get_service),
 ):
-    token = await user.register(credentials=creds)
-    return JSONResponse(status_code=status.HTTP_201_CREATED, content={'token': token})
+    response = await user.register(credentials=creds)
+    return JSONResponse(status_code=status.HTTP_201_CREATED, content=response)
 
 
 @router.post(
@@ -46,13 +48,17 @@ async def register(
 #     key='{user_email}'
 # )
 async def login(
-        token: str = Depends(oauth2_scheme),
+        creds: Credentials = Body(...),
         user: UserService = Depends(get_service),
 ):
-    if await user.login_and_return_token(token=token):
-        return JSONResponse(status_code=status.HTTP_200_OK)
+    response = await user.login_and_return_token(credentials=creds)
+    if response[0]:
+        return JSONResponse(status_code=status.HTTP_200_OK, content=response)
     else:
-        return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED)
+        return JSONResponse(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            content={"detail": "Incorrect username or password"}
+        )
 
 
 @router.patch(
@@ -65,9 +71,11 @@ async def update_user(
         data: dict = Body(...),
         user: UserService = Depends(get_service),
 ):
-
-    await user.update(**data)
-    return JSONResponse(status_code=status.HTTP_200_OK, content={'message': 'ok'})
+    try:
+        await user.update(**data)
+        return JSONResponse(status_code=status.HTTP_200_OK, content={'message': 'ok'})
+    except HTTPException as e:
+        return JSONResponse(status_code=status.HTTP_409_CONFLICT, content={'detail': str(e)})
 
 
 @router.get(
@@ -114,7 +122,7 @@ async def get_user(
         raise credentials_exception
     return User(
         credentials=Credentials(
-            id=user.user_id,
+            user_id=user.user_id,
             email=user.email,
             password=user.password,
             is_trainer=user.is_trainer,
@@ -122,3 +130,114 @@ async def get_user(
         ),
         token=token
     )
+
+
+@router.post(
+    path='/booking/list',
+    summary='Вывести брони по тренеру',
+    description='Список броней',
+    response_description='Список броней',
+    response_model=None
+    # dependencies=[Depends(oauth2_scheme)]
+)
+# @cache(
+#     ttl=settings.redis_cash_timeout,
+#     key='{film_id}'
+# )
+async def booking_list(
+        user: UserService = Depends(get_service),
+        token: str = Depends(oauth2_scheme),
+        # data: dict = Body(...)
+) -> list:
+    email = await check_user(token)
+    bookings = await user.get_bookings_by_email(email=email)
+
+    bookings_list = [
+        {
+            'id': booking.id,
+            'time': booking.time_start.astimezone(ZoneInfo(booking.time_zone_trainer)),
+            'status': booking.status
+        } for booking in bookings
+    ]
+    return bookings_list
+
+
+@router.post(
+    path='/booking/count_completed',
+    summary='Вывести количество завершенных броней по тренеру',
+    description='Количество броней',
+    response_description='Количество броней',
+    dependencies=[Depends(oauth2_scheme)],
+)
+# @cache(
+#     ttl=settings.redis_cash_timeout,
+#     key='{film_id}'
+# )
+async def booking_counts(
+        user: UserService = Depends(get_service),
+        data: dict = Body(...),
+) -> int:
+    trainer_id = data.get('trainer_id')
+    count = await user.get_count_of_bookings_completed(trainer_id=trainer_id)
+
+    return count
+
+
+@router.patch(
+    path='/user/upload_photo',
+    response_class=Response
+)
+async def upload_photo(
+        service: UserService = Depends(get_service),
+        token: str = Depends(oauth2_scheme),
+        photo: UploadFile = File(...),
+):
+    try:
+        photo_data = await photo.read()
+        user = await service.get_current_user(token=token)
+        await service.update(user.user_id, photo=photo_data)
+        return JSONResponse(status_code=status.HTTP_200_OK, content={'message': 'ok'})
+    except Exception as e:
+        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={'detail': str(e)})
+
+
+@router.post(
+    path='/user/get_photo',
+    dependencies=[Depends(oauth2_scheme)],
+)
+async def get_photo(
+        service: UserService = Depends(get_service),
+        data: dict = Body(...),
+):
+    try:
+        trainer_id = data.get('trainer_id')
+        user = await service.get_user_by_id(user_id=trainer_id)
+        if not user.photo:
+            return Response(status_code=status.HTTP_404_NOT_FOUND)
+
+        mime = magic.Magic(mime=True)
+        content_type = mime.from_buffer(user.photo)  # Определяю content-type
+
+        return Response(content=user.photo, media_type=content_type)
+    except Exception as e:
+        return Response(status_code=status.HTTP_400_BAD_REQUEST, content=str(e))
+
+
+@router.post(
+    path='/user/get_photo_by_token',
+)
+async def get_photo(
+        service: UserService = Depends(get_service),
+        token: str = Depends(oauth2_scheme),
+):
+    try:
+        user = await service.get_current_user(token=token)
+        if not user.photo:
+            return Response(status_code=status.HTTP_404_NOT_FOUND)
+
+        mime = magic.Magic(mime=True)
+        content_type = mime.from_buffer(user.photo)  # Определяю content-type
+
+        return Response(content=user.photo, media_type=content_type)
+    except Exception as e:
+        return Response(status_code=status.HTTP_400_BAD_REQUEST, content=str(e))

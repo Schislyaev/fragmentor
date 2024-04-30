@@ -14,10 +14,3 @@ test:
 	docker-compose --file dev.yml up
 	docker-compose down
 
-loc:
-	cp env/.env.local .env
-	docker-compose up
-
-debug:
-	cp env/.env.prod .env
-	docker-compose --file debug_docker_compose.yml up --build

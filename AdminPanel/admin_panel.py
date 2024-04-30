@@ -6,6 +6,7 @@ from fastapi import FastAPI, Request
 
 from db.postgres import engine
 from db.models.user import User
+from db.models.booking import Booking
 from AdminPanel.admin_helper_models import PaymentSum, TGBroadcast
 
 from services.security import get_password_hash
@@ -62,6 +63,10 @@ class UserAdmin(ModelView, model=User):
         return await super().insert_model(request, data)
 
 
+class BookingAdmin(ModelView, model=Booking):
+    column_list = ['id', 'status']
+
+
 class PaymentSumAdmin(ModelView, model=PaymentSum):
     column_list = ['amount', 'created_at', 'updated_at']
     column_default_sort = [(PaymentSum.updated_at, True)]
@@ -92,6 +97,6 @@ def get_admin_panel(app: FastAPI):
     #         data['password'] = hashed_password
     #         return await super().insert_model(request, data)
 
-    return admin, [UserAdmin, PaymentSumAdmin, TGBroadcastAdmin]
+    return admin, [UserAdmin, PaymentSumAdmin, TGBroadcastAdmin, BookingAdmin]
 
 # admin.add_view(UserAdmin)

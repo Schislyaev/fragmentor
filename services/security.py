@@ -1,13 +1,10 @@
 from datetime import datetime, timedelta, timezone
 
-from fastapi import HTTPException, status, Request, Depends
+from fastapi import HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError, ExpiredSignatureError
 from passlib.context import CryptContext
-# from starlette.middleware.base import BaseHTTPMiddleware
-# from fastapi.middleware import Middleware
-# # from starlette.requests import Request
-# from tg_services.user import get_service
+
 
 from core.settings import settings
 
@@ -52,6 +49,19 @@ async def check_user(token):
         raise credentials_exception
 
     return email
+
+
+async def check_user_get_id(token):
+
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: str = payload.get('id')
+        if id is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+
+    return user_id
 
 
 def get_payload(token):

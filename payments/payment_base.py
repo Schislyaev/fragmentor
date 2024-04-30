@@ -86,12 +86,14 @@ class BasePaymentService:
             is_reserved=True
         )
 
+        await booking.update_and_get_emails(booking_id=booking_id, status='payed')
+
         # отправить запрос на дискорд бот и получить ссылки-приглашения
         async with httpx.AsyncClient(timeout=httpx.Timeout(45.0, read=30.0)) as client:
             try:
                 response = await client.post(
                     url=f'http://{settings.discord_host}:8888/discord/create_channel',
-                    json={'guild_id': settings.discord_guild_id, 'channel_name': f'chanel_{str(booking_id)}'}
+                    json={'guild_id': settings.discord_guild_id, 'channel_name': f'channel_{str(booking_id)}'}
                 )
                 invites = response.json()
                 invite1 = invites.get('link1')
@@ -105,7 +107,7 @@ class BasePaymentService:
             message_id=booking_id,
             subject='Ссылка на занятие',
             message=f'Оплата прошла успешно!\n\nТвоя ссылка на занятие:\n{invite1}',
-            destinations=[student_email]
+            destinations=[student_email, trainer_email]
         )
         # отправляем ссылку на дискорд тренеру
         await email.send(

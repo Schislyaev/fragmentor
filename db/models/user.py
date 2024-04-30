@@ -4,8 +4,8 @@ from uuid import uuid4
 from asyncpg import InternalServerError
 from fastapi import status
 from fastapi.exceptions import HTTPException
-from sqlalchemy import Column, DateTime, String, select, Boolean, Integer
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, DateTime, String, select, Boolean, Integer, LargeBinary, Float
+from sqlalchemy.orm import relationship, selectinload
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
@@ -25,12 +25,20 @@ class User(Base):
     is_trainer = Column(Boolean, default=False)
     is_superuser = Column(Boolean, default=False)
     tg_id = Column(Integer, default=None, unique=True)
+    photo = Column(LargeBinary, nullable=True)
+    rating_score = Column(Float, nullable=True)  # Колонка для хранения рейтинга
+    rating_count = Column(Integer, nullable=True)  # Колонка для хранения количества оценок
+
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now)
 
-    schedules = relationship('Schedule', back_populates='trainer')
-    bookings_as_student = relationship('Booking', back_populates='student', foreign_keys='Booking.student_id')
-    bookings_as_trainer = relationship('Booking', back_populates='trainer', foreign_keys='Booking.trainer_id')
+    schedules = relationship('Schedule', back_populates='trainer',  cascade="all, delete-orphan")
+    bookings_as_student = relationship(
+        'Booking', back_populates='student', foreign_keys='Booking.student_id',  cascade="all, delete-orphan"
+    )
+    bookings_as_trainer = relationship(
+        'Booking', back_populates='trainer', foreign_keys='Booking.trainer_id',  cascade="all, delete-orphan"
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -66,7 +74,7 @@ class User(Base):
         await update_table(cls, user_id, data=data)
 
     @classmethod
-    async def get_by_email(cls, email: str) -> dict:
+    async def get_by_email(cls, email: str):
 
         return await get_item(cls, cls.email, email)
 
@@ -77,11 +85,6 @@ class User(Base):
 
     @classmethod
     async def fetch_all_tg_ids(cls):
-        # async with session.begin():
-        #     query = select(User.tg_id).where(User.tg_id.isnot(None))  # Фильтруем, чтобы исключить None значения
-        #     result = await session.execute(query)
-        #     tg_ids = result.scalars().all()
-        #     return tg_ids
         async with async_session() as session:
             try:
                 query = select(cls.tg_id).where(cls.tg_id.isnot(None))  # Фильтруем, чтобы исключить None значения
@@ -96,3 +99,31 @@ class User(Base):
                 # logger.exception(e)
                 print(e)
                 raise InternalServerError()
+
+    @classmethod
+    async def fetch_all_bookings(cls, user_id, conditions=None):
+        try:
+            async with async_session() as session:
+                # Асинхронно выполняем запрос к базе данных
+                query = select(Booking).options(
+                    selectinload(Booking.student),
+                    selectinload(Booking.trainer),
+                    selectinload(Booking.schedule)
+                ).where(
+                    Booking.trainer_id == user_id,
+                    Booking.is_confirmed == True
+                )
+
+                # Добавление дополнительных условий фильтрации перед выполнением запроса
+                if conditions:
+                    for key, value in conditions.items():
+                        query = query.where(getattr(Booking, key) == value)
+
+                result = await session.execute(query)
+                bookings = result.scalars().all()
+                return bookings
+        except Exception as e:
+            await session.rollback()
+            # logger.exception(e)
+            print(e)
+            raise InternalServerError()

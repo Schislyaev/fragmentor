@@ -12,13 +12,13 @@ router = APIRouter()
     path='/token',
     summary='Получить access token',
     response_description='Access token',
-    response_model=Token,
+    # response_model=(Token, bool)
 )
 async def get_token(
         form_data: OAuth2PasswordRequestForm = Depends(),
         service: TokenService = Depends(get_token_service),
         time_zone: str = Body()
-) -> Token:
+):
 
     token = await service.get_token(
         email=form_data.username,

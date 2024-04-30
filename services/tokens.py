@@ -25,9 +25,14 @@ class TokenService:
         if not isinstance(time_zone, str):
             time_zone = time_zone.key
         access_token = create_access_token(
-            data={'sub': user.email, 'time_zone': time_zone}
+            data={
+                'sub': user.email,
+                'time_zone': time_zone,
+                'id': str(user.user_id),
+                # 'is_trainer': user.is_trainer
+            }
         )
-        return {'access_token': access_token, 'token_type': 'Bearer'}
+        return {'access_token': access_token, 'token_type': 'Bearer'}, user.is_trainer
 
 
 @lru_cache()

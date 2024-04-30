@@ -11,7 +11,7 @@ def orjson_dumps(v, *, default):
 class Credentials(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    id: UUID | None = None
+    user_id: UUID | None = None
     email: EmailStr
     password: constr(min_length=4)
     is_trainer: bool = False

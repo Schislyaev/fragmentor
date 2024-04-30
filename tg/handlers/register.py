@@ -32,7 +32,7 @@ async def get_email(message: types.Message, state: FSMContext):
             else:
                 is_tg_id = response.json().get('credentials').get('tg_id')
                 is_trainer = response.json().get('credentials').get('is_trainer')
-                user_id = response.json().get('credentials').get('id')
+                user_id = response.json().get('credentials').get('user_id')
                 if is_tg_id:
                     msg = 'Ты уже с нами'
                 elif not is_trainer:
@@ -40,10 +40,12 @@ async def get_email(message: types.Message, state: FSMContext):
 
                 else:
                     response = await httpx_request_patch(url='/api/v11/user/update', user_id=user_id, tg_id=tg_id)
-                    if not response.status_code == 200:
-                        msg = 'Что то не так на сервере'
-                    else:
+                    if response.status_code == 409:
+                        msg = 'Хмм.. твой ТГ уже есть в нашей базе. Ты уже с нами с другого емейла'
+                    elif response.status_code == 200:
                         msg = 'OK'
+                    else:
+                        msg = 'Что то не так на сервера'
 
     finally:
         await message.answer(msg)

@@ -1,16 +1,22 @@
 from datetime import datetime, timedelta
 from uuid import uuid4
+import asyncio
 
 from asyncpg import InternalServerError
 from fastapi import status
 from fastapi.exceptions import HTTPException
-from sqlalchemy import Column, DateTime, String, select, Boolean, ForeignKey, and_, Integer
+from sqlalchemy import Column, DateTime, String, select, Boolean, ForeignKey, Integer, event
 from sqlalchemy.orm import relationship, selectinload
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from sqlalchemy.orm.attributes import get_history
 
 from db.postgres import Base, async_session
 from db.models.helpers import update_table
+from services.web_socket import send_message_to_websocket
+from services.web_socket import get_websocket
+
+manager = get_websocket()
 
 
 class Booking(Base):
@@ -25,6 +31,7 @@ class Booking(Base):
     time_start = Column(DateTime(timezone=True), nullable=False)
     time_zone_trainer = Column(String(), default='UTC')
     time_zone_student = Column(String(), default='UTC')
+    status = Column(String(20), nullable=True)
     is_confirmed = Column(Boolean, default=False)
     is_deleted = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.now)
@@ -32,7 +39,7 @@ class Booking(Base):
 
     student = relationship('User', back_populates='bookings_as_student', foreign_keys=[student_id])
     trainer = relationship('User', back_populates='bookings_as_trainer', foreign_keys=[trainer_id])
-    payment = relationship("Payment", back_populates="booking")
+    payment = relationship("Payment", back_populates="booking",  cascade="all, delete-orphan")
     schedule = relationship("Schedule", back_populates="booking", uselist=False)
 
     def __init__(self, *args, **kwargs):
@@ -96,17 +103,22 @@ class Booking(Base):
         return booking, student_email, trainer_email
 
     @classmethod
+    async def get_booking_by_booking_id(cls, booking_id: int):
+
+        async with async_session() as session:
+            result = await session.execute(
+                select(Booking).options(
+                    selectinload(Booking.student),
+                    selectinload(Booking.trainer)
+                ).filter_by(id=booking_id)
+            )
+            booking = result.scalars().first()
+
+        return booking
+
+    @classmethod
     async def get_emails_by_id(cls, booking_id: int):
 
-        # Подгружаю связь
-        # async with async_session() as session:
-        #     result = await session.execute(
-        #         select(Booking).options(
-        #             selectinload(Booking.student),
-        #             selectinload(Booking.trainer)
-        #         ).filter_by(id=booking_id)
-        #     )
-        #     booking = result.scalars().first()
         booking = await load_relationships(cls, booking_id)
         student_email = booking.student.email
         trainer_email = booking.trainer.email
@@ -123,3 +135,14 @@ async def load_relationships(cls, booking_id: int):
             ).filter_by(id=booking_id)
         )
     return result.scalars().first()
+
+# Обращение к вебсокету для аутообновления статуса букинга в дашборде тренера - пока не реализовано
+#
+# @event.listens_for(Booking, 'after_update')
+# def after_status_update(mapper, connection, target):
+#     history = get_history(target, 'status')
+#     if history.has_changes():
+#         booking_status = history.added[0]
+#         booking_id = target.id
+#
+#         asyncio.create_task(send_message_to_websocket(booking_id=booking_id, status=booking_status))

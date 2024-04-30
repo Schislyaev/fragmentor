@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 from uuid import uuid4
 
 from asyncpg import InternalServerError
@@ -7,7 +7,6 @@ from fastapi.exceptions import HTTPException
 from sqlalchemy import Column, DateTime, String, select, Boolean, ForeignKey, and_
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from db.postgres import Base, async_session
 from db.models.helpers import update_table
@@ -26,7 +25,7 @@ class Schedule(Base):
     updated_at = Column(DateTime, default=datetime.now)
 
     trainer = relationship('User', back_populates='schedules')
-    booking = relationship("Booking", back_populates="schedule", uselist=False)
+    booking = relationship("Booking", back_populates="schedule", uselist=False,  cascade="all, delete-orphan")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -67,28 +66,8 @@ class Schedule(Base):
                 raise InternalServerError()
 
     @classmethod
-    async def update(cls, schedule_id: int, data: dict):
+    async def update(cls, schedule_id: int | UUID, data: dict):
         schedule = await update_table(cls, schedule_id, data)
-        # async with async_session() as session:
-        #     async with session.begin():
-        #         try:
-        #             # Найти объект по ID
-        #             obj = await session.get(cls, schedule_id)
-        #             if not obj:
-        #                 raise HTTPException(status_code=404, detail="Object not found")
-        #
-        #             # Обновление атрибутов объекта новыми значениями из data
-        #             for key, value in data.items():
-        #                 setattr(obj, key, value)
-        #
-        #             # session.add(obj) # В данном контексте не обязательно, так как изменения отслеживаются
-        #             await session.commit()
-        #             return obj  # Возвращаем обновленный объект
-        #
-        #         except SQLAlchemyError as e:
-        #             await session.rollback()
-        #             # logger.exception(e)
-        #             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
         return schedule
 
@@ -103,8 +82,8 @@ class Schedule(Base):
                             cls.trainer_id == trainer_id,
                             # Добавление фильтра, чтобы time_start было позже текущего времени
                             cls.time_start > datetime.now(),
-                            cls.is_deleted is False,
-                            cls.is_reserved is False
+                            cls.is_deleted == False,
+                            cls.is_reserved == False
 
                             # :todo Такая же функция для истории но без условия выше
                         )
@@ -119,26 +98,20 @@ class Schedule(Base):
                 raise InternalServerError()
 
     @classmethod
-    async def get_by_timeslot(cls, timeslot: datetime):
+    async def get_by_timeslot(cls, time_start: datetime, time_finish: datetime):
         async with async_session() as session:
             try:
-                # schedules = await session.execute(select(cls).filter_by(time_start=timeslot))
-                #
-                # :todo Код ниже для реализации более гибкого поиска
-                #
-                # timeslot_start = timeslot - timedelta(minutes=15)
-                # timeslot_end = timeslot + timedelta(minutes=15)
-                #
-                # # Формирование запроса
+                from db.models.user import User
                 schedules = await session.execute(
                     select(cls)
+                    .join(User, cls.trainer_id == User.user_id)
                     .filter(
                         and_(
-                            cls.time_start == timeslot,
-                            cls.is_deleted is False,
-                            cls.is_reserved is False
-                            # cls.time_start >= timeslot_start,
-                            # cls.time_start <= timeslot_end,
+                            cls.time_start >= time_start,
+                            cls.time_start <= time_finish,
+                            cls.is_deleted == False,
+                            cls.is_reserved == False,
+                            User.tg_id != None  # Не должны показываться слоты тренеров без привязки к ТГ
                         )
                     )
                 )

@@ -1,5 +1,6 @@
 from passlib.context import CryptContext
 from uuid import UUID
+import random
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -35,3 +36,15 @@ def decode_uuid_style_to_id(encoded_uuid: UUID) -> str:
     # Преобразуем hex обратно в ASCII
     chars = [chr(int(clean_hex[i:i + 2], 16)) for i in range(0, len(clean_hex), 2)]
     return ''.join(chars)
+
+
+def generate_random_string(length):
+    """
+    Генерирует случайную строку указанной длины.
+
+    :param length: Int - длина случайной строки.
+    :return: Str - случайная строка указанной длины.
+    """
+    characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+    result = ''.join(random.choice(characters) for _ in range(length))
+    return result

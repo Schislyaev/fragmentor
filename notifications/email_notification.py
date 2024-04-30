@@ -1,4 +1,7 @@
 import hashlib
+import json
+import ssl
+import httpx
 
 import aiosmtplib
 from email.mime.text import MIMEText
@@ -7,17 +10,18 @@ from core.settings import settings
 from server.api.schemas.helpers import ValidateEmail
 from db.redis import get_redis
 from uuid import UUID
+import asyncio
 
 redis = get_redis()
 
 
 class EmailSender:
     def __init__(self):
-        self.smtp_server = 'smtp.gmail.com'
-        self.port = 465
-        self.sender_email = 'pschhhh@gmail.com'
+        self.smtp_server = settings.email_smtp_server
+        self.port = settings.email_port
+        self.sender_email = settings.email_account
         self.redis = redis
-        self.password = settings.google_email_password.get_secret_value()
+        self.password = settings.email_password.get_secret_value()
 
     @staticmethod
     def check_redis(func):
@@ -37,13 +41,18 @@ class EmailSender:
         return wrapper
 
     @check_redis
-    async def send(self, message_id: int | UUID, subject: str, message: str, destinations: list):
+    async def _send(self, message_id: int | UUID, subject: str, message: str, destinations: list):
         try:
             [ValidateEmail(email=destination) for destination in destinations]
         except ValidationError:
             raise ValidationError('Invalid email address')
         try:
-            async with aiosmtplib.SMTP(hostname=self.smtp_server, port=self.port, use_tls=True) as server:
+            async with aiosmtplib.SMTP(
+                    hostname=self.smtp_server,
+                    port=self.port,
+                    # use_tls=True,
+                    # tls_context=ssl.create_default_context()
+            ) as server:
                 await server.login(self.sender_email, self.password)
                 msg = MIMEText(message, 'plain', 'utf-8')
                 msg['Subject'] = subject
@@ -54,7 +63,34 @@ class EmailSender:
                 ) for destination in destinations]
             return 'OK'
         except Exception as e:
+            print(e)
             return 'ERROR'
+
+    @check_redis
+    async def send(self, message_id: int | UUID, subject: str, message: str, destinations: list):
+        url = 'https://api.brevo.com/v3/smtp/email'
+        payload = {
+            'sender': {'name': 'FragMentor', 'email': f'{self.sender_email}'},
+            'to': [{'email': f'{destination}'} for destination in destinations],
+            'subject': subject,
+            'textContent': message
+        }
+
+        headers = {
+            'accept': 'application/json',
+            'Content-Type': 'application/json',
+            'api-key': settings.email_api_key,
+        }
+        async with httpx.AsyncClient(timeout=httpx.Timeout(45.0, read=30.0)) as client:
+            try:
+                response = await client.post(
+                    url=url,
+                    headers=headers,
+                    json=payload
+                )
+                return response.status_code
+            except Exception as e:
+                raise e
 
 
 def get_email_service() -> EmailSender:
@@ -63,4 +99,9 @@ def get_email_service() -> EmailSender:
 
 if __name__ == '__main__':
     email_service = get_email_service()
-    email_service.send('test message')
+    asyncio.run(email_service.send(
+        message_id=1,
+        subject='subj',
+        message='test message',
+        destinations=['pschhhh@gmail.com']
+    ))

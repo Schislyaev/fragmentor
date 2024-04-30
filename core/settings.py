@@ -22,9 +22,17 @@ class Settings(BaseSettings):
     # google email notification
     google_email_password: SecretStr = ''
 
+    # email service notification
+    email_account: str = ''
+    email_password: SecretStr = ''
+    email_port: int = 0
+    email_smtp_server: str = ''
+    email_api_key: str = ''
+
     # postgres config
     database_url: str = ''
     database_url_trigger: str = ''
+    alembic_url: str = ''
     db_user: str = ''
     db_password: str = ''
     db_host: str = ''

@@ -10,13 +10,13 @@ from server.api.schemas.user import Credentials, User
 from services.security import credentials_exception, oauth2_scheme, check_user
 from services.user import UserService, get_service
 from services.schedule import ScheduleService, get_schedule
-from server.api.schemas.schedule import TimeSlotIn, Timezone
+from server.api.schemas.schedule import TimeSlotIn, Timezone, SearchTimeIn
 
 router = APIRouter()
 
 
 @router.post(
-    path='/schedule',
+    path='/schedule/create',
     summary='Перейти в календарь тренера',
     description='Перейти в панель календаря тренера',
     response_description='Редирект на панель календаря тренера',
@@ -39,7 +39,7 @@ async def schedule_create(
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail={'message': 'Not trainer'})
 
     trainer_id = trainer.user_id
-    await schedule_service.add_time(**data.dict(), trainer_id=trainer_id)
+    await schedule_service.add_time(**data.model_dump(), trainer_id=trainer_id)
 
     return JSONResponse(status_code=status.HTTP_201_CREATED, content={'message': 'Time added'})
 
@@ -59,6 +59,34 @@ async def schedule_delete(
     await schedule_service.delete_time(record_id=record_id)
 
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.post(
+    path='/schedule/search/token',
+    summary='Получить время по тренеру',
+    description='Получаем список временных слотов по токену',
+    response_description='Список временных слотов',
+    # dependencies=[Depends(oauth2_scheme)]
+)
+async def timeslots_by_trainer_token(
+        schedule_service: ScheduleService = Depends(get_schedule),
+        token: str = Depends(oauth2_scheme),
+        user: User = Depends(get_service),
+        time_zone: Timezone = Body(...),
+) -> list:
+    trainer = await user.get_current_user(token)
+
+    if not trainer.is_trainer:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail={'message': 'Not trainer'})
+
+    trainer_id = trainer.user_id
+
+    schedules = await schedule_service.get_timeslots_by_trainer_id(
+        trainer_id=trainer_id,
+        student_time_zone=time_zone.time_zone
+    )
+
+    return schedules
 
 
 @router.get(
@@ -82,8 +110,8 @@ async def timeslots_by_trainer_id(
     return schedules
 
 
-@router.get(
-    path='/schedule/search/time/{time}',
+@router.post(
+    path='/schedule/search/time',
     summary='Перейти в календарь тренера',
     description='Перейти в панель календаря тренера',
     response_description='Редирект на панель календаря тренера',
@@ -91,16 +119,19 @@ async def timeslots_by_trainer_id(
 )
 async def trainers_by_timeslot(
         schedule_service: ScheduleService = Depends(get_schedule),
-        time_zone: Timezone = Body(...),
-        time: str = Path()
+        data: SearchTimeIn = Body(...),
 ) -> JSONResponse:
 
-    schedules = await schedule_service.get_trainers_by_timeslot(timeslot=time, student_time_zone=time_zone.time_zone)
+    schedules = await schedule_service.get_trainers_by_timeslot(
+        time_start=data.time_start,
+        time_finish=data.time_finish,
+        time_zone=data.time_zone.time_zone
+    )
 
     if schedules:
         msg = {'msg': [str(schedule) for schedule in schedules]}
     else:
         msg = {'msg': 'В это время никого нет'}
 
-    return JSONResponse(content=msg, status_code=status.HTTP_200_OK)
-
+    # return JSONResponse(content=msg, status_code=status.HTTP_200_OK)
+    return schedules
