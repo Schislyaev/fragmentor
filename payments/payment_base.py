@@ -1,12 +1,14 @@
-from core.settings import settings
 from uuid import UUID
-from services.booking import get_booking
-from services.schedule import get_schedule
-from notifications.email_notification import get_email_service
-from services.payment import get_payment
-from AdminPanel.admin_helper_models import PaymentSum
+
 import httpx
+
+from AdminPanel.admin_helper_models import PaymentSum
+from core.settings import settings
+from notifications.email_notification import get_email_service
 from services import helpers
+from services.booking import get_booking
+from services.payment import get_payment
+from services.schedule import get_schedule
 
 booking = get_booking()
 schedule = get_schedule()

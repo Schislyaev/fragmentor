@@ -1,14 +1,12 @@
 from functools import lru_cache
 from uuid import UUID
+from zoneinfo import ZoneInfo
 
 from db.models.booking import Booking
 from db.models.schedule import Schedule
 from db.models.user import User
-from zoneinfo import ZoneInfo
-from services.schedule import get_schedule
-from uuid import UUID
-from functools import lru_cache
 from notifications.email_notification import get_email_service
+from services.schedule import get_schedule
 
 schedule = get_schedule()
 email = get_email_service()
@@ -48,9 +46,9 @@ class BookingService:
 
         message = f"""
         Появилась бронь на твое расписание:
-        
+
         <b>{time_start.astimezone(ZoneInfo(time_zone_trainer)).strftime('%Y-%m-%d %H:%M')}</b>
-        
+
         Подтверждаешь?\n
         """
         # {

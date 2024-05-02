@@ -1,6 +1,7 @@
-from passlib.context import CryptContext
-from uuid import UUID
 import random
+from uuid import UUID
+
+from passlib.context import CryptContext
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

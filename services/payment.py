@@ -1,5 +1,6 @@
-from db.models.payment import Payment
 from functools import lru_cache
+
+from db.models.payment import Payment
 
 
 class PaymentService:

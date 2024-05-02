@@ -1,7 +1,8 @@
+from uuid import UUID
+from zoneinfo import ZoneInfo
+
 import orjson
 from pydantic import BaseModel, ConfigDict, EmailStr, constr, field_validator
-from zoneinfo import ZoneInfo
-from uuid import UUID
 
 
 def orjson_dumps(v, *, default):

@@ -1,8 +1,6 @@
-from typing import Dict, Any
-
+from core.settings import settings
 from payments.cryptocloud_base import CryptoCloudSDK
 from payments.payment_base import BasePaymentService
-from core.settings import settings
 
 base_cryptocloud = CryptoCloudSDK(api_key=settings.cryptocloud_api_key.get_secret_value())
 

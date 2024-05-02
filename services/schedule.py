@@ -1,8 +1,6 @@
-import uuid
+from datetime import datetime
 from functools import lru_cache
-from datetime import datetime, timezone
 from uuid import UUID
-from fastapi import HTTPException, status
 from zoneinfo import ZoneInfo
 
 from db.models.schedule import Schedule
@@ -15,8 +13,6 @@ class ScheduleService:
 
         trainer_time_zone = ZoneInfo(time_zone.get('time_zone').key)
 
-        # datetime_object = time_start.replace(tzinfo=trainer_time_zone)
-        # datetime_object_to_save = datetime_object.astimezone((ZoneInfo('UTC')))
         datetime_object_to_save = time_start.astimezone((ZoneInfo('UTC')))
 
         await Schedule.add(time_start=datetime_object_to_save, time_zone=trainer_time_zone, trainer_id=trainer_id)

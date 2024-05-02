@@ -39,6 +39,7 @@ gunicorn = "^21.2.0"
 pydevd-pycharm = "^241.15989.57"
 alembic = "^1.13.1"
 python-magic = "^0.4.27"
+autopep8 = "^2.1.0"
 
 [tool.poetry.group.dev.dependencies]
 isort = "^5.11.4"

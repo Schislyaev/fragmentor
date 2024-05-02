@@ -1,16 +1,15 @@
+import asyncio
 import hashlib
-import json
-import ssl
-import httpx
+from email.mime.text import MIMEText
+from uuid import UUID
 
 import aiosmtplib
-from email.mime.text import MIMEText
+import httpx
 from pydantic import ValidationError
+
 from core.settings import settings
-from server.api.schemas.helpers import ValidateEmail
 from db.redis import get_redis
-from uuid import UUID
-import asyncio
+from server.api.schemas.helpers import ValidateEmail
 
 redis = get_redis()
 

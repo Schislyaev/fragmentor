@@ -1,6 +1,8 @@
-import asyncpg
 import asyncio
 import json
+
+import asyncpg
+
 from core.settings import settings
 
 

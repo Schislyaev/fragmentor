@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta, timezone
+
 from jose import jwt
 
 from core.settings import settings
-
 
 SECRET_KEY = settings.secret_key
 ALGORITHM = settings.algorithm

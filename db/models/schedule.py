@@ -4,12 +4,14 @@ from uuid import uuid4
 from asyncpg import InternalServerError
 from fastapi import status
 from fastapi.exceptions import HTTPException
-from sqlalchemy import Column, DateTime, String, select, Boolean, ForeignKey, and_
-from sqlalchemy.orm import relationship
+from sqlalchemy import (Boolean, Column, DateTime, ForeignKey, String, and_,
+                        select)
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import relationship
 
-from db.postgres import Base, async_session
 from db.models.helpers import update_table
+from db.postgres import Base, async_session
 
 
 class Schedule(Base):
@@ -25,7 +27,7 @@ class Schedule(Base):
     updated_at = Column(DateTime, default=datetime.now)
 
     trainer = relationship('User', back_populates='schedules')
-    booking = relationship("Booking", back_populates="schedule", uselist=False,  cascade="all, delete-orphan")
+    booking = relationship("Booking", back_populates="schedule", uselist=False, cascade="all, delete-orphan")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -59,10 +61,9 @@ class Schedule(Base):
 
             try:
                 await session.commit()
-            except Exception as e:
+            except SQLAlchemyError:
                 await session.rollback()
                 # logger.exception(e)
-                print(e)
                 raise InternalServerError()
 
     @classmethod
@@ -82,8 +83,8 @@ class Schedule(Base):
                             cls.trainer_id == trainer_id,
                             # Добавление фильтра, чтобы time_start было позже текущего времени
                             cls.time_start > datetime.now(),
-                            cls.is_deleted == False,
-                            cls.is_reserved == False
+                            cls.is_deleted == False,  # noqa
+                            cls.is_reserved == False  # noqa
 
                             # :todo Такая же функция для истории но без условия выше
                         )
@@ -91,10 +92,9 @@ class Schedule(Base):
                 )
                 schedules = schedules.scalars().all()
                 return schedules
-            except Exception as e:  # :todo Change to right exception
+            except SQLAlchemyError:
                 await session.rollback()
                 # logger.exception(e)
-                print(e)
                 raise InternalServerError()
 
     @classmethod
@@ -109,9 +109,9 @@ class Schedule(Base):
                         and_(
                             cls.time_start >= time_start,
                             cls.time_start <= time_finish,
-                            cls.is_deleted == False,
-                            cls.is_reserved == False,
-                            User.tg_id != None  # Не должны показываться слоты тренеров без привязки к ТГ
+                            cls.is_deleted == False,  # noqa
+                            cls.is_reserved == False,  # noqa
+                            User.tg_id != None  # noqa Не должны показываться слоты тренеров без привязки к ТГ
                         )
                     )
                 )
@@ -119,10 +119,9 @@ class Schedule(Base):
                 schedules = schedules.scalars().all()
                 return schedules
 
-            except Exception as e:  # :todo Change to right exception
+            except SQLAlchemyError:  # :todo Change to right exception
                 await session.rollback()
                 # logger.exception(e)
-                print(e)
                 raise InternalServerError()
 
     @classmethod

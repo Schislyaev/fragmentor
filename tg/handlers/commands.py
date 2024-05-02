@@ -1,14 +1,10 @@
 from http import HTTPStatus
 
+import httpx
 from aiogram import types
 from bot_init import bot
-# from keyboards.keyboards import get_movie_list_kb
-# from requests import request
-import httpx
-from aiogram.fsm.context import FSMContext
 
 from core.settings import settings
-from utils.statesemail import StepsEmail
 
 
 async def start(message: types.Message):
@@ -47,4 +43,3 @@ async def start(message: types.Message):
                 chat_id=user_id,
                 text=messages['default'],
             )
-

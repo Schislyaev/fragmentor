@@ -1,16 +1,13 @@
 # from cashews import cache
-import uuid
-
-from fastapi import APIRouter, Body, Depends, status, HTTPException, Response, Path
+from fastapi import (APIRouter, Body, Depends, HTTPException, Path, Response,
+                     status)
 from fastapi.responses import JSONResponse
-from jose import JWTError, jwt
 
-from core.settings import settings
-from server.api.schemas.user import Credentials, User
-from services.security import credentials_exception, oauth2_scheme, check_user
-from services.user import UserService, get_service
+from server.api.schemas.schedule import SearchTimeIn, TimeSlotIn, Timezone
+from server.api.schemas.user import User
 from services.schedule import ScheduleService, get_schedule
-from server.api.schemas.schedule import TimeSlotIn, Timezone, SearchTimeIn
+from services.security import oauth2_scheme
+from services.user import UserService, get_service
 
 router = APIRouter()
 
@@ -129,9 +126,6 @@ async def trainers_by_timeslot(
     )
 
     if schedules:
-        msg = {'msg': [str(schedule) for schedule in schedules]}
+        return schedules
     else:
-        msg = {'msg': 'В это время никого нет'}
-
-    # return JSONResponse(content=msg, status_code=status.HTTP_200_OK)
-    return schedules
+        return JSONResponse(content=None, status_code=status.HTTP_200_OK)

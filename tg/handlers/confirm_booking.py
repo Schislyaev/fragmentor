@@ -1,6 +1,6 @@
-from callbacks.callbackdata import Confirm, ConfirmConfirm
-from aiogram.types import CallbackQuery
 from aiogram import Bot
+from aiogram.types import CallbackQuery
+from callbacks.callbackdata import Confirm, ConfirmConfirm
 from keyboards.confirm import get_confirm_confirm_keyboard
 from utils.response_to_confirmation import get_is_confirmed
 
@@ -51,5 +51,3 @@ async def select_confirm_confirm_bookings(call: CallbackQuery, bot: Bot, callbac
         await call.answer()
 
         await is_confirmed.no(booking_id=booking_id, schedule_id=schedule_id)
-
-

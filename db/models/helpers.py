@@ -1,7 +1,8 @@
-from sqlalchemy.exc import SQLAlchemyError, IntegrityError
-from sqlalchemy import select
-from fastapi import HTTPException, status
 from datetime import datetime
+
+from fastapi import HTTPException, status
+from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from db.postgres import async_session
 
@@ -46,7 +47,4 @@ async def get_item(cls, cls_field, cls_filter):
             return result.scalars().first()  # Получить первую запись
 
         except Exception as e:
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail={"error": "Error"})
-
-
-
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail={"error": e})

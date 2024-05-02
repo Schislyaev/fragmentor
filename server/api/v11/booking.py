@@ -1,17 +1,16 @@
 # from cashews import cache
-from typing import Any
 from uuid import UUID
-import json
 
-from fastapi import APIRouter, Body, Depends, status, WebSocket, WebSocketDisconnect, Query
+from fastapi import (APIRouter, Body, Depends, Query, WebSocket,  # noqa
+                     WebSocketDisconnect, status)
 from fastapi.responses import JSONResponse
-from jose import jwt
 
-from services.security import oauth2_scheme, get_payload, check_user_get_id
 from services.booking import BookingService, get_booking
-from services.web_socket import WebSocketManager, get_websocket
-from tg.tg_services.telegram_service import get_telegram_service, TelegramService
-
+from services.security import (check_user_get_id, get_payload,  # noqa
+                               oauth2_scheme)
+from services.web_socket import WebSocketManager, get_websocket  # noqa
+from tg.tg_services.telegram_service import (TelegramService,
+                                             get_telegram_service)
 
 router = APIRouter()
 
@@ -108,7 +107,11 @@ async def booking_cancel(
 #                 booking_id = data.get('booking_id')
 #                 booking_status = data.get('booking_status')
 #                 await manager.send_personal_message(
-#                     json.dumps({'type': 'update_status', 'booking_id': booking_id, 'booking_status': booking_status}),
+#                     json.dumps({
+#                     'type': 'update_status',
+#                     'booking_id': booking_id,
+#                     'booking_status': booking_status
+#                     }),
 #                     user_id
 #                 )
 #     except jwt.JWTError:

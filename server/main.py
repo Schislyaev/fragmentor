@@ -1,18 +1,19 @@
-import aioredis
 from contextlib import asynccontextmanager
+
+# import aioredis
 import uvicorn
 from cashews import cache
 from fastapi.applications import FastAPI
-from fastapi.responses import ORJSONResponse, JSONResponse
+from fastapi.responses import JSONResponse, ORJSONResponse
 from starlette.requests import Request
 
+from AdminPanel.admin_panel import get_admin_panel
 from core.fastapi_config import config
 from core.settings import settings
 # from core.logger import log
-from db import redis
-from db.postgres import init_models, init_table
-from server.api.v11 import token, users, schedules, booking, payment
-from AdminPanel.admin_panel import get_admin_panel
+# from db import redis
+from db.postgres import init_models, init_table  # noqa
+from server.api.v11 import booking, payment, schedules, token, users
 
 
 @asynccontextmanager
@@ -54,12 +55,12 @@ app = FastAPI(
 )
 
 
-# @app.middleware("http")
-# async def add_from_cache_headers(request: Request, call_next):
-#     body = await request.body()
-#     # print(f"Request body: {body.decode()}")
-#     response = await call_next(request)
-#     return response
+@app.middleware("http")
+async def add_from_cache_headers(request: Request, call_next):
+    body = await request.body()  # noqa
+    # print(f"Request body: {body.decode()}")
+    response = await call_next(request)
+    return response
 
 
 app.include_router(users.router, prefix='/api/v11', tags=['USERS'])
@@ -99,7 +100,7 @@ if __name__ == '__main__':
         host='0.0.0.0',
         port=8080,
         ws_ping_interval=30,
-        ws_ping_timeout=3000
+        ws_ping_timeout=3000,
         # log_config=log(__name__),
         # log_level=config.log_level,
     )

@@ -1,7 +1,9 @@
-import discord
-from core.settings import settings
 from functools import lru_cache
+
+import discord
 from aiohttp import web
+
+from core.settings import settings
 
 intents = discord.Intents.all()
 

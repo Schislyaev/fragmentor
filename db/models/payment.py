@@ -1,17 +1,18 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 from uuid import uuid4
 
 from asyncpg import InternalServerError
 from fastapi import status
 from fastapi.exceptions import HTTPException
-from sqlalchemy import Column, DateTime, String, select, Boolean, ForeignKey, and_, Integer
-from sqlalchemy.orm import relationship, selectinload
+from sqlalchemy import (Boolean, Column, DateTime, ForeignKey, Integer, String,
+                        select)
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import relationship, selectinload
 
-from db.postgres import Base, async_session
-from db.models.helpers import update_table
 from db.models.booking import Booking
+from db.models.helpers import update_table
+from db.postgres import Base, async_session
 
 
 class Payment(Base):

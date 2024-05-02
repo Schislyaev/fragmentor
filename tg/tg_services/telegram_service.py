@@ -1,6 +1,8 @@
 from uuid import UUID
 
 from aiogram import Bot, Dispatcher
+from fastapi import HTTPException
+
 from tg.keyboards.confirm import get_select_confirm_keyboard
 from tg.utils.helpers import httpx_request_get
 
@@ -24,6 +26,7 @@ class TelegramService:
         response = await httpx_request_get(url='/api/v11/user/get_tg_ids')
         if not response.status_code == 200:
             msg = 'Что то не так на сервере'
+            raise HTTPException(status_code=500, detail=msg)
         else:
             group = response.json()
             [
@@ -39,4 +42,3 @@ class TelegramService:
 def get_telegram_service() -> TelegramService:
     from tg.bot_init import bot, dp
     return TelegramService(bot, dp)
-

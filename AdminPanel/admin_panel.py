@@ -1,18 +1,19 @@
-from typing import Any
+import json
 from functools import lru_cache
+from typing import Any
 
-from sqladmin import Admin, ModelView
-from fastapi import FastAPI, Request
-
-from db.postgres import engine
-from db.models.user import User
-from db.models.booking import Booking
-from AdminPanel.admin_helper_models import PaymentSum, TGBroadcast
-
-from services.security import get_password_hash
-from sqladmin.authentication import AuthenticationBackend
 import httpx
+from fastapi import FastAPI, Request
+from sqladmin import Admin, ModelView
+from sqladmin.authentication import AuthenticationBackend
+
+from AdminPanel.admin_helper_models import PaymentSum, TGBroadcast
 from core.settings import settings
+from db.models.booking import Booking
+from db.models.user import User
+from db.postgres import engine
+from services.security import (credentials_exception, get_password_hash,
+                               get_payload)
 
 
 class AdminAuth(AuthenticationBackend):
@@ -20,17 +21,28 @@ class AdminAuth(AuthenticationBackend):
         form = await request.form()
         username, password = form["username"], form["password"]
 
-        url = f'http://{settings.host}:{settings.port}/api/v11/token'
-        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-        body = {'username': username, 'password': password}
-        async with httpx.AsyncClient(timeout=httpx.Timeout(5.0, read=30.0)) as client:
+        url = f'http://{settings.host}:{settings.port}/api/v11/login'
+        headers = {'Content-Type': 'application/json'}
+        body = {
+            'email': username,
+            'password': password,
+            'time_zone': 'Europe/Madrid'
+        }
+        async with httpx.AsyncClient(timeout=httpx.Timeout(50000.0, read=300.0)) as client:
             try:
-                response = await client.post(url=url, data=body, headers=headers)
+                response = await client.post(url=url, json=body, headers=headers)
+                if response.status_code in [401, 422]:
+                    raise credentials_exception
             except Exception as e:
                 print(e)
                 raise e
 
-        token = response.content.decode('utf-8')
+        # Вытаскиваю токен из структуры и из него payload
+        token = json.loads(response.text)[0].get('access_token')
+        payload = get_payload(token)
+        if not payload.get('is_superuser'):
+            raise credentials_exception
+
         # Validate username/password credentials
         # And update session
         request.session.update({"token": token})

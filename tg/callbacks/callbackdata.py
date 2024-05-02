@@ -1,6 +1,6 @@
-from aiogram.filters.callback_data import CallbackData
-
 from uuid import UUID
+
+from aiogram.filters.callback_data import CallbackData
 
 
 class Confirm(CallbackData, prefix='confirmation'):

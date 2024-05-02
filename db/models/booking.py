@@ -1,20 +1,18 @@
-from datetime import datetime, timedelta
-from uuid import uuid4
-import asyncio
+from datetime import datetime
 
 from asyncpg import InternalServerError
 from fastapi import status
 from fastapi.exceptions import HTTPException
-from sqlalchemy import Column, DateTime, String, select, Boolean, ForeignKey, Integer, event
-from sqlalchemy.orm import relationship, selectinload
+from sqlalchemy import (Boolean, Column, DateTime, ForeignKey, Integer, String,
+                        select)
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
-from sqlalchemy.orm.attributes import get_history
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import relationship, selectinload
 
-from db.postgres import Base, async_session
 from db.models.helpers import update_table
-from services.web_socket import send_message_to_websocket
-from services.web_socket import get_websocket
+from db.postgres import Base, async_session
+from services.web_socket import (get_websocket,  # noqa
+                                 send_message_to_websocket)
 
 manager = get_websocket()
 
@@ -39,7 +37,7 @@ class Booking(Base):
 
     student = relationship('User', back_populates='bookings_as_student', foreign_keys=[student_id])
     trainer = relationship('User', back_populates='bookings_as_trainer', foreign_keys=[trainer_id])
-    payment = relationship("Payment", back_populates="booking",  cascade="all, delete-orphan")
+    payment = relationship("Payment", back_populates="booking", cascade="all, delete-orphan")
     schedule = relationship("Schedule", back_populates="booking", uselist=False)
 
     def __init__(self, *args, **kwargs):

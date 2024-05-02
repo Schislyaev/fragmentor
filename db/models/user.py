@@ -4,16 +4,16 @@ from uuid import uuid4
 from asyncpg import InternalServerError
 from fastapi import status
 from fastapi.exceptions import HTTPException
-from sqlalchemy import Column, DateTime, String, select, Boolean, Integer, LargeBinary, Float
-from sqlalchemy.orm import relationship, selectinload
+from sqlalchemy import (Boolean, Column, DateTime, Float, Integer, LargeBinary,
+                        String, select)
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import relationship, selectinload
 
+from db.models.booking import Booking
+from db.models.helpers import get_item, update_table
 from db.postgres import Base, async_session
 from services.helpers import get_password_hash, verify_password
-from db.models.schedule import Schedule
-from db.models.booking import Booking
-from db.models.helpers import update_table, get_item
 
 
 class User(Base):
@@ -32,12 +32,12 @@ class User(Base):
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now)
 
-    schedules = relationship('Schedule', back_populates='trainer',  cascade="all, delete-orphan")
+    schedules = relationship('Schedule', back_populates='trainer', cascade="all, delete-orphan")
     bookings_as_student = relationship(
-        'Booking', back_populates='student', foreign_keys='Booking.student_id',  cascade="all, delete-orphan"
+        'Booking', back_populates='student', foreign_keys='Booking.student_id', cascade="all, delete-orphan"
     )
     bookings_as_trainer = relationship(
-        'Booking', back_populates='trainer', foreign_keys='Booking.trainer_id',  cascade="all, delete-orphan"
+        'Booking', back_populates='trainer', foreign_keys='Booking.trainer_id', cascade="all, delete-orphan"
     )
 
     def __init__(self, *args, **kwargs):
@@ -111,7 +111,7 @@ class User(Base):
                     selectinload(Booking.schedule)
                 ).where(
                     Booking.trainer_id == user_id,
-                    Booking.is_confirmed == True
+                    Booking.is_confirmed == True  # noqa
                 )
 
                 # Добавление дополнительных условий фильтрации перед выполнением запроса

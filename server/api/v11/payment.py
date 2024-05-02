@@ -1,14 +1,15 @@
 # from cashews import cache
-from fastapi import APIRouter, Body, Depends, status, Request, Response, Query
+from urllib.parse import parse_qs
+
+from fastapi import APIRouter, Body, Depends, Request, Response, status
 from fastapi.responses import JSONResponse
 
 from core.settings import settings
-from payments.yookassa_service import YookassaService, get_yookassa
+from db.redis import Redis, get_redis
 from payments.cryptocould_service import CryptoCouldService, get_cryptocloud
-from db.redis import get_redis, Redis
-from urllib.parse import parse_qs
-from services import helpers
 from payments.payment_base import BasePaymentService, get_base_payment
+from payments.yookassa_service import YookassaService, get_yookassa
+from services import helpers
 
 SECRET_KEY = settings.secret_key
 ALGORITHM = settings.algorithm
@@ -125,5 +126,3 @@ async def create_payment(
     )
 
     return Response(status_code=status.HTTP_200_OK)
-
-

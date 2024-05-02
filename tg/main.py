@@ -12,19 +12,20 @@ Petr Schislyaev
 import asyncio
 from time import sleep
 
-from aiogram.filters import Command
 from aiogram.exceptions import (TelegramNetworkError, TelegramRetryAfter,
                                 TelegramServerError)
+from aiogram.filters import Command
 from bot_init import bot, dp
+from callbacks.callbackdata import Confirm, ConfirmConfirm
+from handlers import register
+from handlers.confirm_booking import (select_confirm_booking,
+                                      select_confirm_confirm_bookings)
 from middlewares.bot_handle import IgnoreBotsMiddleware
 from utils.commands import set_commands
-
-from core.logger import log
-from core.settings import settings
-from handlers import register
 from utils.statesemail import StepsEmail
-from handlers.confirm_booking import select_confirm_confirm_bookings, select_confirm_booking
-from callbacks.callbackdata import ConfirmConfirm, Confirm
+
+from core.logger import log  # noqa
+from core.settings import settings
 
 # logger = log(__name__)
 
@@ -67,10 +68,10 @@ async def main():
         await dp.start_polling(
             bot,
         )
-    except (TelegramRetryAfter, TelegramNetworkError, TelegramServerError) as e:
+    except (TelegramRetryAfter, TelegramNetworkError, TelegramServerError) as e:  # noqa
         # logger.exception(e)
         sleep(10)
-    except Exception as e:
+    except Exception as e:  # noqa
         ...
     # logger.exception(e)
 

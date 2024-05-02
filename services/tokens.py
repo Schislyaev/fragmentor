@@ -1,10 +1,10 @@
 from functools import lru_cache
+from zoneinfo import ZoneInfo
 
 from fastapi import HTTPException, status
 
 from db.models.user import User
 from services.security import create_access_token
-from zoneinfo import ZoneInfo
 
 
 class TokenService:
@@ -29,6 +29,7 @@ class TokenService:
                 'sub': user.email,
                 'time_zone': time_zone,
                 'id': str(user.user_id),
+                'is_superuser': user.is_superuser,
                 # 'is_trainer': user.is_trainer
             }
         )

@@ -1,10 +1,8 @@
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from sqlalchemy import engine_from_config, pool
 
 from alembic import context
-
 from core.settings import settings
 from db.postgres import Base
 
@@ -17,13 +15,13 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
+from AdminPanel.admin_helper_models import *
 # add your model's MetaData object here
 # for 'autogenerate' support
 from db.models.booking import *
-from db.models.user import *
-from db.models.schedule import *
 from db.models.payment import *
-from AdminPanel.admin_helper_models import *
+from db.models.schedule import *
+from db.models.user import *
 
 # target_metadata = mymodel.Base.metadata
 target_metadata = Base.metadata

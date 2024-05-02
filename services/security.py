@@ -2,9 +2,8 @@ from datetime import datetime, timedelta, timezone
 
 from fastapi import HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from jose import jwt, JWTError, ExpiredSignatureError
+from jose import JWTError, jwt
 from passlib.context import CryptContext
-
 
 from core.settings import settings
 
@@ -71,28 +70,3 @@ def get_payload(token):
         raise credentials_exception
 
     return payload
-
-
-# class JWTAuthMiddleware(BaseHTTPMiddleware):
-#
-#     def __init__(self, app):
-#         super().__init__(app)
-#
-#     async def dispatch(
-#             self,
-#             request: Request,
-#             call_next,
-#     ):
-#         try:
-#             token = request.session.get('token')
-#             # token = request.state.auth
-#             email = await check_user(token)
-#
-#             user_service = get_service()
-#             user = user_service.get_user_by_email(email)
-#
-#             request.state.user = user
-#         except Exception as e:
-#             pass
-#         response = await call_next(request)
-#         return response

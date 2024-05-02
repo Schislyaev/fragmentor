@@ -1,8 +1,7 @@
 # from cashews import cache
-from fastapi import APIRouter, Depends, Body
+from fastapi import APIRouter, Body, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 
-from server.api.schemas.token import Token
 from services.tokens import TokenService, get_token_service
 
 router = APIRouter()

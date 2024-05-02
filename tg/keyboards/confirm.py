@@ -1,7 +1,8 @@
-from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardMarkup
-from tg.callbacks.callbackdata import Confirm, ConfirmConfirm
-
 from uuid import UUID
+
+from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardMarkup
+
+from tg.callbacks.callbackdata import Confirm, ConfirmConfirm
 
 
 def get_select_confirm_keyboard(booking_id: int, schedule_id: UUID) -> InlineKeyboardMarkup:

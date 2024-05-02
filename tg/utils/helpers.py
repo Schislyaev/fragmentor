@@ -1,6 +1,7 @@
-from tg.utils.security import create_access_token
 import httpx
+
 from core.settings import settings
+from tg.utils.security import create_access_token
 
 
 async def httpx_request_get(url: str):

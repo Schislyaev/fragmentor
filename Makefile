@@ -14,3 +14,6 @@ test:
 	docker-compose --file dev.yml up
 	docker-compose down
 
+lint:
+	autopep8 --in-place --recursive .
+

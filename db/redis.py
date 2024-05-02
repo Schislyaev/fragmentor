@@ -5,8 +5,8 @@
 # redis = redis.from_url(f'redis://{settings.redis_url}:{settings.redis_port}')
 import aioredis
 from aioredis import Redis
-from core.settings import settings
 
+from core.settings import settings
 
 redis = aioredis.from_url(f'redis://{settings.redis_host}:{settings.redis_port}')
 

@@ -1,14 +1,16 @@
 # from cashews import cache
-from fastapi import APIRouter, Body, Depends, status, HTTPException, UploadFile, File
+from zoneinfo import ZoneInfo
+
+import magic
+from fastapi import (APIRouter, Body, Depends, File, HTTPException, UploadFile,
+                     status)
 from fastapi.responses import JSONResponse, Response
 from pydantic import EmailStr
-from zoneinfo import ZoneInfo
 
 from core.settings import settings
 from server.api.schemas.user import Credentials, User
-from services.security import credentials_exception, oauth2_scheme, check_user
+from services.security import check_user, credentials_exception, oauth2_scheme
 from services.user import UserService, get_service
-import magic
 
 SECRET_KEY = settings.secret_key
 ALGORITHM = settings.algorithm
@@ -226,7 +228,7 @@ async def get_photo(
 @router.post(
     path='/user/get_photo_by_token',
 )
-async def get_photo(
+async def get_photo_by_token(
         service: UserService = Depends(get_service),
         token: str = Depends(oauth2_scheme),
 ):

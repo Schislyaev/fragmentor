@@ -1,10 +1,9 @@
 from aiogram import types
-from pydantic import ValidationError
 from aiogram.fsm.context import FSMContext
-
-from utils.statesemail import StepsEmail
-from utils.schemas import ValidateEmail
+from pydantic import ValidationError
 from utils.helpers import httpx_request_get, httpx_request_patch
+from utils.schemas import ValidateEmail
+from utils.statesemail import StepsEmail
 
 
 async def register_user(message: types.Message, state: FSMContext):

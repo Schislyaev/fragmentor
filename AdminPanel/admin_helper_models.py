@@ -1,10 +1,9 @@
-from datetime import datetime
 import asyncio
+from datetime import datetime
 
 from fastapi import status
 from fastapi.exceptions import HTTPException
-from sqlalchemy import Column, DateTime, String, select, Integer, event
-
+from sqlalchemy import Column, DateTime, Integer, String, event, select
 
 from db.postgres import Base, async_session
 
@@ -29,7 +28,7 @@ class PaymentSum(Base):
                 return result.scalars().first()  # Получить первую запись
 
             except Exception as e:
-                raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail={"error": "Error"})
+                raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail={"error": e})
 
 
 class TGBroadcast(Base):

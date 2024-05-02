@@ -1,6 +1,8 @@
-import httpx
 from functools import lru_cache
+
+import httpx
 from fastapi.responses import JSONResponse
+
 from core.settings import settings
 
 

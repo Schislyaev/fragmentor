@@ -1,7 +1,9 @@
-from fastapi.responses import JSONResponse, Response
-from uuid import UUID
-import httpx
 from functools import lru_cache
+from uuid import UUID
+
+import httpx
+from fastapi.responses import Response
+
 from core.settings import settings
 
 
@@ -36,4 +38,3 @@ class IsConfirmed:
 @lru_cache()
 def get_is_confirmed() -> IsConfirmed:
     return IsConfirmed()
-
