@@ -70,14 +70,14 @@ class BookingService:
         await schedule.update(str(schedule_id), is_deleted=True)
 
         # Пометить бронь как удаленную
-        _, trainer_email = await self.update_and_get_emails(booking_id=booking_id, is_deleted=True)
+        student_email, trainer_email = await self.update_and_get_emails(booking_id=booking_id, is_deleted=True)
 
         # Оповестить студента об отказе тренера на это время.
         await email.send(
             message_id=booking_id,
             subject='Отмена брони',
             message='Ваша бронь отменена, тренер нас подвел и отказался учить в это время',
-            destinations=['pschhhh@gmail.com']
+            destinations=['pschhhh@gmail.com', student_email]
         )
 
     @staticmethod

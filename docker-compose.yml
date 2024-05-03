@@ -11,8 +11,8 @@ services:
       options:
         gelf-address: "udp://127.0.0.1:12201"
         tag: postgres
-    ports:
-      - "5432:5432"
+#    ports:
+#      - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
 

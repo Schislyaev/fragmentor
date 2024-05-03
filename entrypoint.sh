@@ -12,4 +12,4 @@ done
 echo "Redis started"
 
 export PYTHONPATH="${PYTHONPATH}:/opt/app"
-gunicorn server.main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8080
+gunicorn server.main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8080 --timeout 120

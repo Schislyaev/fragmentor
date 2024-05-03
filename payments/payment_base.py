@@ -66,7 +66,7 @@ class BasePaymentService:
             subject='Бронь подтверждена',
             message=f'Ваши ссылки на оплату:\nСтандартно: {payments_info[0]["payment_link"]}\n'
                     f'Crypto: {payments_info[1]["payment_link"]}',
-            destinations=['pschhhh@gmail.com', 'schislyaev@gmail.com'],  # student_email
+            destinations=['pschhhh@gmail.com', student_email],  # student_email
         )
 
     @staticmethod
@@ -107,16 +107,16 @@ class BasePaymentService:
         student_email, trainer_email = await booking.get_emails(booking_id=booking_id)
         await email.send(
             message_id=booking_id,
-            subject='Ссылка на занятие',
+            subject=f'Ссылка на занятие {booking_obj.time_start}',
             message=f'Оплата прошла успешно!\n\nТвоя ссылка на занятие:\n{invite1}',
-            destinations=[student_email, trainer_email]
+            destinations=['pschhhh@gmail.com', student_email]
         )
         # отправляем ссылку на дискорд тренеру
         await email.send(
             message_id=booking_id,
-            subject='Ссылка на занятие',
-            message=f'Твоя ссылка на занятие:\n{invite2}',
-            destinations=[trainer_email]
+            subject=f'Ссылка на занятие {booking_obj.time_start}',
+            message=f'Твоя ссылка на занятие:\n{invite2}',  # :todo Специфицировать занятие (время)
+            destinations=['pschhhh@gmail.com', trainer_email]
         )
 
     @staticmethod
