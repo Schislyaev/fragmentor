@@ -67,7 +67,7 @@ class AdminAuth(AuthenticationBackend):
 
 
 class UserAdmin(ModelView, model=User):
-    column_list = ['user_id', 'email', 'password', 'created_at', 'updated_at']
+    column_list = ['user_id', 'email', 'password', 'tg_id', 'is_trainer', 'created_at', 'updated_at']
 
     async def insert_model(self, request: Request, data: dict) -> Any:
         hashed_password = get_password_hash(data['password'])

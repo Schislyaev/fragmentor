@@ -66,7 +66,7 @@ class BasePaymentService:
             subject='Бронь подтверждена',
             message=f'Ваши ссылки на оплату:\nСтандартно: {payments_info[0]["payment_link"]}\n'
                     f'Crypto: {payments_info[1]["payment_link"]}',
-            destinations=['pschhhh@gmail.com', student_email],  # student_email
+            destinations=['pschhhh@gmail.com', student_email],
         )
 
     @staticmethod
