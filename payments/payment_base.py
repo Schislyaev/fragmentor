@@ -35,7 +35,7 @@ class BasePaymentService:
     async def process(self, booking_id):
 
         # Перевести бронь в статус confirmed.
-        student_email, _ = await booking.update_and_get_emails(
+        student_email, trainer_email = await booking.update_and_get_emails(
             booking_id=booking_id,
             is_confirmed=True
         )

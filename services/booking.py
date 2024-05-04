@@ -28,8 +28,8 @@ class BookingService:
         time_zone_trainer = schedule_data.time_zone
         time_start = schedule_data.time_start
 
-        # user = await User.get_by_email(email)
-        user = await User.get_by_id(trainer_id)
+        user = await User.get_by_email(email)
+        # user = await User.get_by_id(trainer_id)
 
         tg_id = user.tg_id
 
