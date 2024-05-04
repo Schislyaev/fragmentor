@@ -28,16 +28,16 @@ class BookingService:
         time_zone_trainer = schedule_data.time_zone
         time_start = schedule_data.time_start
 
-        user = await User.get_by_email(email)
-        # user = await User.get_by_id(trainer_id)
+        student = await User.get_by_email(email)
+        trainer = await User.get_by_id(trainer_id)
 
-        tg_id = user.tg_id
+        tg_id = trainer.tg_id
 
         data_to_create = {
             'time_start': time_start,
             'trainer_id': trainer_id,
             'time_zone_trainer': time_zone_trainer,
-            'student_id': user.user_id,
+            'student_id': student.user_id,
             'time_zone_student': time_zone_student,
             'schedule_id': schedule_id,
         }
