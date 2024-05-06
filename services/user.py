@@ -10,7 +10,7 @@ from services.tokens import get_token_service
 class UserService:
     @staticmethod
     async def register(credentials: Credentials):
-        await User.add(credentials.model_dump(exclude={'time_zone'}))
+        await User.add(credentials.model_dump(exclude={'time_zone', 're_captcha_token'}))
 
         service = get_token_service()
         token, is_trainer = await service.get_token(credentials.email, credentials.password, credentials.time_zone)

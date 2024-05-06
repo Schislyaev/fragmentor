@@ -9,7 +9,7 @@ from pydantic import EmailStr
 
 from core.settings import settings
 from server.api.schemas.user import Credentials, User
-from services.security import check_user, credentials_exception, oauth2_scheme
+from services.security import check_user, credentials_exception, oauth2_scheme, re_captcha_v3
 from services.user import UserService, get_service
 
 SECRET_KEY = settings.secret_key
@@ -33,6 +33,12 @@ async def register(
         creds: Credentials = Body(...),
         user: UserService = Depends(get_service),
 ):
+    re_captcha_token = creds.re_captcha_token
+    if not await re_captcha_v3(re_captcha_token):
+        return JSONResponse(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            content={"detail": "Привет, углеродный брат. Ты - не кожаный мешок.."}
+        )
     response = await user.register(credentials=creds)
     return JSONResponse(status_code=status.HTTP_201_CREATED, content=response)
 
@@ -53,6 +59,12 @@ async def login(
         creds: Credentials = Body(...),
         user: UserService = Depends(get_service),
 ):
+    re_captcha_token = creds.re_captcha_token
+    if not await re_captcha_v3(re_captcha_token):
+        return JSONResponse(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            content={"detail": "Привет, углеродный брат. Ты - не кожаный мешок.."}
+        )
     response = await user.login_and_return_token(credentials=creds)
     if response[0]:
         return JSONResponse(status_code=status.HTTP_200_OK, content=response)

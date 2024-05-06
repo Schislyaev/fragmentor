@@ -18,6 +18,7 @@ class Credentials(BaseModel):
     is_trainer: bool = False
     time_zone: str = 'Europe/Berlin'
     tg_id: int | None = None
+    re_captcha_token: str | None = None
 
     @field_validator('time_zone')
     def validate_and_convert_timezone(cls, v):

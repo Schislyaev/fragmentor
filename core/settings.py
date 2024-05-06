@@ -66,6 +66,9 @@ class Settings(BaseSettings):
     cryptocloud_api_key: SecretStr = ''
     cryptocloud_shop_id: SecretStr = ''
 
+    # reCaptchaV3
+    google_recaptcha_key: SecretStr = ''
+
     debug: int = 1
 
     project_root_path: str = str(pathlib.Path(__file__).parent.parent)
