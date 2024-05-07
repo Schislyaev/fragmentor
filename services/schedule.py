@@ -2,6 +2,7 @@ from datetime import datetime
 from functools import lru_cache
 from uuid import UUID
 from zoneinfo import ZoneInfo
+from collections import defaultdict
 
 from db.models.schedule import Schedule
 
@@ -72,6 +73,23 @@ class ScheduleService:
         ]
 
         return trainers
+
+    @staticmethod
+    async def get_trainers_with_timeslots(time_start, time_finish, time_zone):
+
+        schedules = await Schedule.get_by_timeslot(time_start=time_start, time_finish=time_finish)
+
+        dict_trainers = defaultdict(list)
+        [
+            dict_trainers[schedule.trainer_id].append(
+                {
+                    'schedule_id': str(schedule.id),
+                    'time_start': schedule.time_start.astimezone(ZoneInfo(time_zone.get('time_zone'))),
+                }
+            ) for schedule in schedules
+        ]
+
+        return dict_trainers
 
 
 @lru_cache()

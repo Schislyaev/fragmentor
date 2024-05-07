@@ -1,4 +1,6 @@
 # from cashews import cache
+from datetime import datetime, timedelta
+
 from fastapi import (APIRouter, Body, Depends, HTTPException, Path, Response,
                      status)
 from fastapi.responses import JSONResponse
@@ -127,5 +129,29 @@ async def trainers_by_timeslot(
 
     if schedules:
         return schedules
+    else:
+        return JSONResponse(content=None, status_code=status.HTTP_200_OK)
+
+
+@router.post(
+    path='/schedule/search/all',
+    summary='Получить словарь тренеров с их таймслотами',
+    description='Получить словарь тренеров с их таймслотами',
+    response_description='Словарь тренеров с их таймслотами',
+    dependencies=[Depends(oauth2_scheme)]
+)
+async def trainers_dict_by_timeslot(
+        schedule_service: ScheduleService = Depends(get_schedule),
+        time_zone: dict = Body(...),
+) -> JSONResponse:
+
+    trainers_dict = await schedule_service.get_trainers_with_timeslots(
+        time_start=datetime.now() + timedelta(hours=1),
+        time_finish=datetime.now() + timedelta(weeks=480),
+        time_zone=time_zone
+    )
+
+    if trainers_dict:
+        return trainers_dict
     else:
         return JSONResponse(content=None, status_code=status.HTTP_200_OK)
