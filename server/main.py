@@ -43,8 +43,9 @@ app = FastAPI(
     title=config.project_name,
     description=config.project_description,
     version=config.project_version,
-    docs_url='/api/openapi',
-    openapi_url='/api/openapi.json',
+    docs_url=None,  # '/api/openapi',
+    openapi_url=None,  # '/api/openapi.json',
+    redoc_url=None,
     default_response_class=ORJSONResponse,
     openapi_tags=[
         {
@@ -55,12 +56,11 @@ app = FastAPI(
 )
 
 
-@app.middleware("http")
-async def add_from_cache_headers(request: Request, call_next):
-    body = await request.body()  # noqa
-    # print(f"Request body: {body.decode()}")
-    response = await call_next(request)
-    return response
+# @app.middleware("http")
+# async def add_from_cache_headers(request: Request, call_next):
+#     body = await request.body()  # noqa
+#     response = await call_next(request)
+#     return response
 
 
 app.include_router(users.router, prefix='/api/v11', tags=['USERS'])
