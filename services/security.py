@@ -90,4 +90,8 @@ async def re_captcha_v3(token: str):
             # Процедура логина
             return {"message": "Logged in successfully"}
         else:
-            raise recaptcha_exception
+            raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail=result,
+                    headers={"WWW-Authenticate": "Bearer"},
+            )
