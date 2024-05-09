@@ -56,11 +56,11 @@ app = FastAPI(
 )
 
 
-# @app.middleware("http")
-# async def add_from_cache_headers(request: Request, call_next):
-#     body = await request.body()  # noqa
-#     response = await call_next(request)
-#     return response
+@app.middleware("http")
+async def add_from_cache_headers(request: Request, call_next):
+    body = await request.body()  # noqa
+    response = await call_next(request)
+    return response
 
 
 app.include_router(users.router, prefix='/api/v11', tags=['USERS'])

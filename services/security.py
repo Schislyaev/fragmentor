@@ -21,6 +21,11 @@ credentials_exception = HTTPException(
     headers={"WWW-Authenticate": "Bearer"},
 )
 
+recaptcha_exception = HTTPException(
+    status_code=status.HTTP_401_UNAUTHORIZED,
+    detail="Could not validate recaptcha",
+    headers={"WWW-Authenticate": "Bearer"},
+)
 
 def create_access_token(data: dict):
     to_encode = data.copy()
@@ -85,4 +90,4 @@ async def re_captcha_v3(token: str):
             # Процедура логина
             return {"message": "Logged in successfully"}
         else:
-            raise credentials_exception
+            raise recaptcha_exception
