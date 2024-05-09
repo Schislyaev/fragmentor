@@ -86,7 +86,7 @@ async def re_captcha_v3(token: str):
     async with httpx.AsyncClient(timeout=httpx.Timeout(45.0, read=30.0)) as client:
         response = await client.post('https://www.google.com/recaptcha/api/siteverify', data=data)
         result = response.json()
-        if result.get("success") and result.get("score") >= 0.5:  # Установите пороговое значение по вашему усмотрению
+        if result.get("success") and result.get("score") >= 0:  # Установите пороговое значение по вашему усмотрению
             # Процедура логина
             return {"message": "Logged in successfully"}
         else:
