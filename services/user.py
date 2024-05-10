@@ -1,9 +1,11 @@
 from functools import lru_cache
 from uuid import UUID
+from fastapi.responses import JSONResponse
+from fastapi import status
 
 from db.models.user import User
 from server.api.schemas.user import Credentials
-from services.security import check_user
+from services.security import check_user, verify_confirmation_token
 from services.tokens import get_token_service
 
 
@@ -13,9 +15,19 @@ class UserService:
         await User.add(credentials.model_dump(exclude={'time_zone', 're_captcha_token'}))
 
         service = get_token_service()
-        token, is_trainer = await service.get_token(credentials.email, credentials.password, credentials.time_zone)
+        token, is_trainer, is_email_confirmed = await service.get_token(
+            credentials.email,
+            credentials.password,
+            credentials.time_zone
+        )
 
-        return token, is_trainer, credentials.email
+        # return token, is_trainer, credentials.email
+        return {
+            'access_token': token,
+            'is_trainer': is_trainer,
+            'email': credentials.email,
+            'is_email_confirmed': is_email_confirmed
+        }
 
     @staticmethod
     async def get_user_by_email(email: str):
@@ -25,9 +37,19 @@ class UserService:
     @staticmethod
     async def login_and_return_token(credentials: Credentials):
         service = get_token_service()
-        token, is_trainer = await service.get_token(credentials.email, credentials.password, credentials.time_zone)
+        token, is_trainer, is_email_confirmed = await service.get_token(
+            credentials.email,
+            credentials.password,
+            credentials.time_zone
+        )
 
-        return token, is_trainer, credentials.email
+        # return token, is_trainer, credentials.email
+        return {
+            'access_token': token,
+            'is_trainer': is_trainer,
+            'email': credentials.email,
+            'is_email_confirmed': is_email_confirmed
+        }
 
     @staticmethod
     async def get_current_user(token: str):
@@ -68,6 +90,28 @@ class UserService:
         user = await User.get_by_id(user_id)
 
         return user
+
+    async def confirm_email_return_token(self, email_token):
+
+        token_service = get_token_service()
+
+        email = verify_confirmation_token(email_token)
+        if not email:
+            return JSONResponse(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                content={'detail': 'Invalid or expired token'}
+            )
+        user = await self.get_user_by_email(email)
+        await self.update(user_id=user.user_id, is_email_confirmed=True)
+
+        token = await token_service.update_token(email_token)
+
+        return {
+            'access_token': token,
+            'is_trainer': user.is_trainer,
+            'email': email,
+            'is_email_confirmed': user.is_email_confirmed
+        }
 
 
 @lru_cache()

@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo
 from fastapi import HTTPException, status
 
 from db.models.user import User
-from services.security import create_access_token
+from services.security import create_access_token, get_payload
 
 
 class TokenService:
@@ -33,7 +33,16 @@ class TokenService:
                 # 'is_trainer': user.is_trainer
             }
         )
-        return {'access_token': access_token, 'token_type': 'Bearer'}, user.is_trainer
+        return {'access_token': access_token, 'token_type': 'Bearer'}, user.is_trainer, user.is_email_confirmed
+
+    @staticmethod
+    async def update_token(token, **data):
+        payload = get_payload(token)
+
+        for key, value in data.items():
+            payload[key] = value
+
+        return {'access_token': create_access_token(payload), 'token_type': 'Bearer'}
 
 
 @lru_cache()

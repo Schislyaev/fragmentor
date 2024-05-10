@@ -70,7 +70,7 @@ async def login(
             content={"detail": "Привет, углеродный брат. Ты - не кожаный мешок.."}
         )
     response = await user.login_and_return_token(credentials=creds)
-    if response[0]:
+    if response['access_token']:
         return JSONResponse(status_code=status.HTTP_200_OK, content=response)
     else:
         return JSONResponse(
@@ -268,14 +268,18 @@ async def verify_email_update(
         service: UserService = Depends(get_service)
 ):
     email_token = data.get('token')
-    email = verify_confirmation_token(email_token)
-    if not email:
-        return JSONResponse(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            content={'detail': 'Invalid or expired token'}
-        )
-    user = await service.get_user_by_email(email)
-    await service.update(user_id=user.user_id, is_email_confirmed=True)
+    # email = verify_confirmation_token(email_token)
+    # if not email:
+    #     return JSONResponse(
+    #         status_code=status.HTTP_401_UNAUTHORIZED,
+    #         content={'detail': 'Invalid or expired token'}
+    #     )
+    # user = await service.get_user_by_email(email)
+    # await service.update(user_id=user.user_id, is_email_confirmed=True)
+
+    response = await service.confirm_email_return_token(email_token)
+
+    return JSONResponse(status_code=status.HTTP_200_OK, content=response)
 
 @router.post(
     path='/user/verify_email/generate_url'
@@ -285,8 +289,8 @@ async def verify_email(
         email: EmailSender = Depends(get_email_service),
 ):
     user_email = await check_user(token)
-    verification_token = generate_confirmation_token(user_email)
-    token_url = f'http://{settings.host}:3000/verify?token={verification_token}'
+    verification_token = generate_confirmation_token(user_email, token)
+    token_url = f'http://{settings.host}:3000/verify/{verification_token}'
 
     await email.send(
         message_id=1,

@@ -96,8 +96,10 @@ async def re_captcha_v3(token: str):
                     headers={"WWW-Authenticate": "Bearer"},
             )
 
-def generate_confirmation_token(email):
-    return create_access_token({'sub': email})
+def generate_confirmation_token(email, token):
+    payload = get_payload(token)
+    payload['sub'] = email
+    return create_access_token(payload)
 
 def verify_confirmation_token(token):
     try:
