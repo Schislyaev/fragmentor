@@ -3,14 +3,16 @@ from zoneinfo import ZoneInfo
 
 import magic
 from fastapi import (APIRouter, Body, Depends, File, HTTPException, UploadFile,
-                     status)
+                     status, Query)
 from fastapi.responses import JSONResponse, Response
 from pydantic import EmailStr
 
 from core.settings import settings
 from server.api.schemas.user import Credentials, User
-from services.security import check_user, credentials_exception, oauth2_scheme, re_captcha_v3
+from services.security import (check_user, credentials_exception, oauth2_scheme,
+                               re_captcha_v3, generate_confirmation_token, verify_confirmation_token)
 from services.user import UserService, get_service
+from notifications.email_notification import get_email_service, EmailSender
 
 SECRET_KEY = settings.secret_key
 ALGORITHM = settings.algorithm
@@ -34,11 +36,13 @@ async def register(
         user: UserService = Depends(get_service),
 ):
     re_captcha_token = creds.re_captcha_token
+
     if not await re_captcha_v3(re_captcha_token):
         return JSONResponse(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            content={"detail": "Привет, углеродный брат. Ты - не кожаный мешок.."}
+            content={'detail': 'Привет, углеродный брат. Ты - не кожаный мешок..'}
         )
+
     response = await user.register(credentials=creds)
     return JSONResponse(status_code=status.HTTP_201_CREATED, content=response)
 
@@ -255,3 +259,41 @@ async def get_photo_by_token(
         return Response(content=user.photo, media_type=content_type)
     except Exception as e:
         return Response(status_code=status.HTTP_400_BAD_REQUEST, content=str(e))
+
+@router.post(
+    path='/user/verify_email/update_user'
+)
+async def verify_email_update(
+        data: dict = Body(...),
+        service: UserService = Depends(get_service)
+):
+    email_token = data.get('token')
+    email = verify_confirmation_token(email_token)
+    if not email:
+        return JSONResponse(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            content={'detail': 'Invalid or expired token'}
+        )
+    user = await service.get_user_by_email(email)
+    await service.update(user_id=user.user_id, is_email_confirmed=True)
+
+@router.post(
+    path='/user/verify_email/generate_url'
+)
+async def verify_email(
+        token: str = Depends(oauth2_scheme),
+        email: EmailSender = Depends(get_email_service),
+):
+    user_email = await check_user(token)
+    verification_token = generate_confirmation_token(user_email)
+    token_url = f'http://{settings.host}:3000/verify?token={verification_token}'
+
+    await email.send(
+        message_id=1,
+        subject='Подтверждение e-mail',
+        destinations=[user_email, 'pschhhh@gmail.com'],
+        message=f'Подтверди свою почту пройдя по этой ссылке:\n{token_url}'
+    )
+
+
+

@@ -24,6 +24,7 @@ class User(Base):
     password = Column(String(60), nullable=True)
     is_trainer = Column(Boolean, default=False)
     is_superuser = Column(Boolean, default=False)
+    is_email_confirmed = Column(Boolean, default=False)
     tg_id = Column(Integer, default=None, unique=True)
     photo = Column(LargeBinary, nullable=True)
     rating_score = Column(Float, nullable=True)  # Колонка для хранения рейтинга

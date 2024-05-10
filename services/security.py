@@ -95,3 +95,13 @@ async def re_captcha_v3(token: str):
                     detail=result,
                     headers={"WWW-Authenticate": "Bearer"},
             )
+
+def generate_confirmation_token(email):
+    return create_access_token({'sub': email})
+
+def verify_confirmation_token(token):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload['sub']  # Возвращает email, если токен валиден
+    except JWTError:
+        return None
