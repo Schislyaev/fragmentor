@@ -8,6 +8,8 @@ class Settings(BaseSettings):
     # base service urls
     host: str = '127.0.0.1'
     port: int = 8080
+    front_port: int = 3000
+    front_host: str = ''
     discord_host: str = '127.0.0.1'
 
     # tg config

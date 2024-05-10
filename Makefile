@@ -16,4 +16,5 @@ test:
 
 lint:
 	autopep8 --in-place --recursive .
+	isort .
 

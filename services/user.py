@@ -1,7 +1,8 @@
 from functools import lru_cache
 from uuid import UUID
-from fastapi.responses import JSONResponse
+
 from fastapi import status
+from fastapi.responses import JSONResponse
 
 from db.models.user import User
 from server.api.schemas.user import Credentials

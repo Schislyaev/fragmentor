@@ -3,16 +3,17 @@ from zoneinfo import ZoneInfo
 
 import magic
 from fastapi import (APIRouter, Body, Depends, File, HTTPException, UploadFile,
-                     status, Query)
+                     status)
 from fastapi.responses import JSONResponse, Response
 from pydantic import EmailStr
 
 from core.settings import settings
+from notifications.email_notification import EmailSender, get_email_service
 from server.api.schemas.user import Credentials, User
-from services.security import (check_user, credentials_exception, oauth2_scheme,
-                               re_captcha_v3, generate_confirmation_token, verify_confirmation_token)
+from services.security import (check_user, credentials_exception,
+                               generate_confirmation_token, oauth2_scheme,
+                               re_captcha_v3)
 from services.user import UserService, get_service
-from notifications.email_notification import get_email_service, EmailSender
 
 SECRET_KEY = settings.secret_key
 ALGORITHM = settings.algorithm
@@ -260,6 +261,7 @@ async def get_photo_by_token(
     except Exception as e:
         return Response(status_code=status.HTTP_400_BAD_REQUEST, content=str(e))
 
+
 @router.post(
     path='/user/verify_email/update_user'
 )
@@ -268,18 +270,11 @@ async def verify_email_update(
         service: UserService = Depends(get_service)
 ):
     email_token = data.get('token')
-    # email = verify_confirmation_token(email_token)
-    # if not email:
-    #     return JSONResponse(
-    #         status_code=status.HTTP_401_UNAUTHORIZED,
-    #         content={'detail': 'Invalid or expired token'}
-    #     )
-    # user = await service.get_user_by_email(email)
-    # await service.update(user_id=user.user_id, is_email_confirmed=True)
 
     response = await service.confirm_email_return_token(email_token)
 
     return JSONResponse(status_code=status.HTTP_200_OK, content=response)
+
 
 @router.post(
     path='/user/verify_email/generate_url'
@@ -290,7 +285,7 @@ async def verify_email(
 ):
     user_email = await check_user(token)
     verification_token = generate_confirmation_token(user_email, token)
-    token_url = f'http://{settings.host}:3000/verify/{verification_token}'
+    token_url = f'http://{settings.front_host}:{settings.front_port}/verify/{verification_token}'
 
     await email.send(
         message_id=1,
@@ -298,6 +293,3 @@ async def verify_email(
         destinations=[user_email, 'pschhhh@gmail.com'],
         message=f'Подтверди свою почту пройдя по этой ссылке:\n{token_url}'
     )
-
-
-

@@ -1,10 +1,10 @@
 from datetime import datetime, timedelta, timezone
 
+import httpx
 from fastapi import HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-import httpx
 
 from core.settings import settings
 
@@ -26,6 +26,7 @@ recaptcha_exception = HTTPException(
     detail="Could not validate recaptcha",
     headers={"WWW-Authenticate": "Bearer"},
 )
+
 
 def create_access_token(data: dict):
     to_encode = data.copy()
@@ -77,6 +78,7 @@ def get_payload(token):
 
     return payload
 
+
 async def re_captcha_v3(token: str):
     secret_key = settings.google_recaptcha_key.get_secret_value()
     data = {
@@ -96,10 +98,12 @@ async def re_captcha_v3(token: str):
                     headers={"WWW-Authenticate": "Bearer"},
             )
 
+
 def generate_confirmation_token(email, token):
     payload = get_payload(token)
     payload['sub'] = email
     return create_access_token(payload)
+
 
 def verify_confirmation_token(token):
     try:

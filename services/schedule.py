@@ -1,8 +1,8 @@
+from collections import defaultdict
 from datetime import datetime
 from functools import lru_cache
 from uuid import UUID
 from zoneinfo import ZoneInfo
-from collections import defaultdict
 
 from db.models.schedule import Schedule
 

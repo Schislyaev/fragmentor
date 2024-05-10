@@ -11,8 +11,9 @@ from sqlalchemy.orm import relationship, selectinload
 
 from db.models.helpers import update_table
 from db.postgres import Base, async_session
-from services.web_socket import (get_websocket,  # noqa
-                                 send_message_to_websocket)
+from services.web_socket import get_websocket  # noqa
+
+# from services.web_socket import send_message_to_websocket
 
 manager = get_websocket()
 
