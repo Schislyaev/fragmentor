@@ -111,7 +111,7 @@ class UserService:
             'access_token': token,
             'is_trainer': user.is_trainer,
             'email': email,
-            'is_email_confirmed': user.is_email_confirmed
+            'is_email_confirmed': True
         }
 
 
