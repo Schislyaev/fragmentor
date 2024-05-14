@@ -138,7 +138,7 @@ async def trainers_by_timeslot(
     summary='Получить словарь тренеров с их таймслотами',
     description='Получить словарь тренеров с их таймслотами',
     response_description='Словарь тренеров с их таймслотами',
-    dependencies=[Depends(oauth2_scheme)]
+    # dependencies=[Depends(oauth2_scheme)]
 )
 async def trainers_dict_by_timeslot(
         schedule_service: ScheduleService = Depends(get_schedule),

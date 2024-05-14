@@ -186,7 +186,7 @@ async def booking_list(
     summary='Вывести количество завершенных броней по тренеру',
     description='Количество броней',
     response_description='Количество броней',
-    dependencies=[Depends(oauth2_scheme)],
+    # dependencies=[Depends(oauth2_scheme)],
 )
 # @cache(
 #     ttl=settings.redis_cash_timeout,
@@ -222,7 +222,7 @@ async def upload_photo(
 
 @router.post(
     path='/user/get_photo',
-    dependencies=[Depends(oauth2_scheme)],
+    # dependencies=[Depends(oauth2_scheme)],
 )
 async def get_photo(
         service: UserService = Depends(get_service),
