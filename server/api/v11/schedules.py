@@ -114,7 +114,7 @@ async def timeslots_by_trainer_id(
     summary='Перейти в календарь тренера',
     description='Перейти в панель календаря тренера',
     response_description='Редирект на панель календаря тренера',
-    dependencies=[Depends(oauth2_scheme)]
+    # dependencies=[Depends(oauth2_scheme)]
 )
 async def trainers_by_timeslot(
         schedule_service: ScheduleService = Depends(get_schedule),
