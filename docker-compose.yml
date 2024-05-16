@@ -60,7 +60,7 @@ services:
       - tg
     ports:
       - "81:81"
-      - "443:443"
+#      - "443:443"
 
   tg:
     build:
