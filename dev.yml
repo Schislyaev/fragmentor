@@ -15,3 +15,22 @@ services:
     ports:
       - "6379:6379"
 
+  db-backup:
+    image: postgres:14-alpine
+    volumes:
+      - ./backup-script.sh:/backup-script.sh  # Убедитесь, что скрипт исполняемый
+      - ./backup_volume:/backups
+    env_file: .env
+    entrypoint: /bin/sh
+    command: -c "echo '* * * * * /backup-script.sh' | crontab - && crond -f"
+    depends_on:
+      - postgres
+
+volumes:
+  backup_volume:
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/petr/projects/FragMentor/backend/backups
+      o: bind
+

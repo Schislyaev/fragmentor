@@ -96,5 +96,22 @@ services:
 #      - "80:80"
 #      - "443:443"
 
+  db-backup:
+    image: postgres:14-alpine
+    volumes:
+      - ./backup-script.sh:/backup-script.sh
+      - ./backup_volume:/backups
+    env_file: .env
+    entrypoint: /bin/sh
+    command: -c "echo '0 2,14 * * * /backup-script.sh' | crontab - && crond -f"
+    depends_on:
+      - postgres
+
 volumes:
   db_data:
+  backup_volume:
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/fragmentor/backend/backups
+      o: bind
