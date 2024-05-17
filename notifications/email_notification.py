@@ -88,6 +88,8 @@ class EmailSender:
                     headers=headers,
                     json=payload
                 )
+                if not response.status_code == 201:
+                    raise Exception('Что-то пошло не так')
                 return response.status_code
             except Exception as e:
                 raise e
