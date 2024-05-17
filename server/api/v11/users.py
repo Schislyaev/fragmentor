@@ -232,7 +232,7 @@ async def get_photo(
         trainer_id = data.get('trainer_id')
         user = await service.get_user_by_id(user_id=trainer_id)
         if not user.photo:
-            return Response(status_code=status.HTTP_404_NOT_FOUND)
+            return Response(status_code=status.HTTP_204_NO_CONTENT)
 
         mime = magic.Magic(mime=True)
         content_type = mime.from_buffer(user.photo)  # Определяю content-type
@@ -252,7 +252,7 @@ async def get_photo_by_token(
     try:
         user = await service.get_current_user(token=token)
         if not user.photo:
-            return Response(status_code=status.HTTP_404_NOT_FOUND)
+            return Response(status_code=status.HTTP_204_NO_CONTENT)
 
         mime = magic.Magic(mime=True)
         content_type = mime.from_buffer(user.photo)  # Определяю content-type

@@ -22,7 +22,7 @@ services:
       - ./backup_volume:/backups
     env_file: .env
     entrypoint: /bin/sh
-    command: -c "echo '* * * * * /backup-script.sh' | crontab - && crond -f"
+    command: -c "echo '15 * * * * /backup-script.sh' | crontab - && crond -f"
     depends_on:
       - postgres
 

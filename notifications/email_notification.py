@@ -70,7 +70,8 @@ class EmailSender:
         url = 'https://api.brevo.com/v3/smtp/email'
         payload = {
             'sender': {'name': 'FragMentor', 'email': f'{self.sender_email}'},
-            'to': [{'email': f'{destination}'} for destination in destinations],
+            'to': {'email': self.sender_email},
+            'bcc': [{'email': f'{destination}'} for destination in destinations],
             'subject': subject,
             'textContent': message
         }
