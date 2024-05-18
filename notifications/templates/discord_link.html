@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Подтверждение Email</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tektur:wdth,wght@75..100,400..900&display=swap');
+        body {
+            font-family: 'Tektur', sans-serif;
+        }
+        .header-container {
+            width: 60%;
+            margin: 0 auto !important;
+            margin-top: 10px;
+            height: 290px;
+            z-index: -1;
+            display: flex;
+            border-radius: 8px;
+            background-image: url('https://fragmentor.website/static/media/home-page-header-background.png') !important;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        .button {
+            width: 60%;
+            margin: 20px auto;    /* Centers the button horizontally and adds vertical margin */
+            padding: 0;           /* No padding needed */
+            font-size: 16px;
+            text-decoration: none;
+            color: red;         /* Adjust text color for visibility */
+            background-size: cover; /* Cover ensures the image covers the button area */
+            background-repeat: no-repeat; /* No repetition of the image */
+            background-position: center; /* Center the image on the button */
+            border: none;
+            text-align: center;   /* Centers the text horizontally */
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.6); /* Optional: Adds shadow for depth */
+            transition: all 0.3s ease; /* Добавляет плавность перехода эффектов */
+        }
+        .button:hover {
+            color: #fff; /* Поддерживаем белый цвет текста */
+            box-shadow: 0 0 12px rgba(255, 0, 0, 0.8); /* Увеличиваем и насыщаем тень */
+            transform: scale(1.05); /* Небольшое увеличение размера кнопки */
+        }
+
+
+        .footer-container {
+            width: 60%;
+            margin: 0 auto !important;
+            height: 290px;
+            z-index: -1;
+            display: flex;
+            border-radius: 8px;
+            background-image: url('https://fragmentor.website/static/media/home-page-footer-background.webp') !important;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header-container"></div>
+    <div class="button">Твоя ссылка на занятие:<br>{{ invite }}</div>
+    <div class="footer-container"></div>
+</body>
+</html>

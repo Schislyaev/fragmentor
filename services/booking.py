@@ -76,8 +76,8 @@ class BookingService:
         await email.send(
             message_id=booking_id,
             subject='Отмена брони',
-            message='Ваша бронь отменена, тренер нас подвел и отказался учить в это время',
-            destinations=['pschhhh@gmail.com', student_email]
+            destinations=[student_email],
+            template_name='booking-rejected-by-trainer.html'
         )
 
     @staticmethod

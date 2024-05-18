@@ -290,6 +290,7 @@ async def verify_email(
     await email.send(
         message_id=1,
         subject='Подтверждение e-mail',
-        destinations=[user_email, 'pschhhh@gmail.com'],
-        message=f'Подтверди свою почту пройдя по этой ссылке:\n{token_url}'
+        destinations=[user_email],
+        template_name='email_confirmation.html',
+        confirmation_link=token_url
     )
