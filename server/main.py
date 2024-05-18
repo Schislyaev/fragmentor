@@ -14,7 +14,6 @@ from core.settings import settings
 # from db import redis
 from db.postgres import init_models, init_table  # noqa
 from server.api.v11 import booking, payment, schedules, token, users
-from fastapi.staticfiles import StaticFiles
 
 
 @asynccontextmanager
@@ -70,8 +69,6 @@ app.include_router(schedules.router, prefix='/api/v11', tags=['SCHEDULES'])
 app.include_router(booking.router, prefix='/api/v11', tags=['BOOKINGS'])
 # app.include_router(create_channel.router, prefix='/api/v11', tags=['DISCORD'])
 app.include_router(payment.router, prefix='/api/v11', tags=['PAYMENT'])
-
-app.mount('/static', StaticFiles(directory='/home/petr/projects/FragMentor/backend/notifications/templates/static'), name='static')
 
 
 @app.exception_handler(ValueError)
