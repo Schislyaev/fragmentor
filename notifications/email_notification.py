@@ -16,7 +16,7 @@ redis = get_redis()
 
 
 class EmailSender:
-    def __init__(self, template_dir='/home/petr/projects/FragMentor/backend/notifications/templates'):
+    def __init__(self, template_dir=settings.template_dir):
         self.smtp_server = settings.email_smtp_server
         self.port = settings.email_port
         self.sender_email = settings.email_account

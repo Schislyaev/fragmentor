@@ -71,6 +71,8 @@ class Settings(BaseSettings):
     # reCaptchaV3
     google_recaptcha_key: SecretStr = ''
 
+    template_dir: str = ''
+
     debug: int = 1
 
     project_root_path: str = str(pathlib.Path(__file__).parent.parent)
