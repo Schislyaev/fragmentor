@@ -26,3 +26,10 @@ services:
     depends_on:
       - postgres
 
+volumes:
+  backups:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/backups
+      o: bind
