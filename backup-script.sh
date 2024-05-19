@@ -12,7 +12,7 @@ BACKUP_PATH="/backups/$YEAR/$MONTH"
 mkdir -p $BACKUP_PATH
 
 # Создание бэкапа
-pg_dump -h postgres -U $POSTGRES_USER $POSTGRES_DB > $BACKUP_PATH/$DAY_$TIME_backup.sql
+pg_dump -h postgres -U $POSTGRES_USER $POSTGRES_DB > ${BACKUP_PATH}/${DAY}_${TIME}_backup.sql
 
 # Удаление файлов бэкапов старше 30 дней
 #find /backups -type f -name '*.sql' -mtime +30 -exec rm {} \;
