@@ -1,6 +1,7 @@
 import json
 from functools import lru_cache
 from typing import Any
+from uuid import UUID
 
 import httpx
 from fastapi import FastAPI, Request
@@ -19,14 +20,15 @@ from services.security import (credentials_exception, get_password_hash,
 class AdminAuth(AuthenticationBackend):
     async def login(self, request: Request) -> bool:
         form = await request.form()
-        username, password = form["username"], form["password"]
+        username, password, re_captcha_token = form["username"], form["password"], form['g-recaptcha-response']
 
         url = f'http://{settings.host}:{settings.port}/api/v11/login'
         headers = {'Content-Type': 'application/json'}
         body = {
             'email': username,
             'password': password,
-            'time_zone': 'Europe/Madrid'
+            'time_zone': 'Europe/Madrid',
+            're_captcha_token': re_captcha_token
         }
         async with httpx.AsyncClient(timeout=httpx.Timeout(50000.0, read=300.0)) as client:
             try:
@@ -38,7 +40,7 @@ class AdminAuth(AuthenticationBackend):
                 raise e
 
         # Вытаскиваю токен из структуры и из него payload
-        token = json.loads(response.text)[0].get('access_token')
+        token = json.loads(response.text).get('access_token').get('access_token')
         payload = get_payload(token)
         if not payload.get('is_superuser'):
             raise credentials_exception
@@ -73,6 +75,22 @@ class UserAdmin(ModelView, model=User):
         hashed_password = get_password_hash(data['password'])
         data['password'] = hashed_password
         return await super().insert_model(request, data)
+
+    async def update_model(self, request, pk, data):
+        user_id = UUID(pk)
+        record = await User.get_by_id(user_id)
+        data_to_update = {}
+        for key in data:
+            if (
+                    (key != 'schedules')
+                    and (key != 'bookings_as_student')
+                    and (key != 'bookings_as_trainer')
+                    and (key != 'photo')
+            ):
+                if data[key] != getattr(record, key):
+                    data_to_update[key] = data[key]
+        await User.update(user_id=user_id, data=data_to_update)
+        return await super().update_model(request, pk, data={})
 
 
 class BookingAdmin(ModelView, model=Booking):
