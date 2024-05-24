@@ -30,10 +30,11 @@ class TokenService:
                 'time_zone': time_zone,
                 'id': str(user.user_id),
                 'is_superuser': user.is_superuser,
+                'nickname': user.nickname
                 # 'is_trainer': user.is_trainer
             }
         )
-        return {'access_token': access_token, 'token_type': 'Bearer'}, user.is_trainer, user.is_email_confirmed
+        return {'access_token': access_token, 'token_type': 'Bearer'}, user.is_trainer, user.is_email_confirmed, user.nickname
 
     @staticmethod
     async def update_token(token, **data):

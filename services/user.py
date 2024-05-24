@@ -38,7 +38,7 @@ class UserService:
     @staticmethod
     async def login_and_return_token(credentials: Credentials):
         service = get_token_service()
-        token, is_trainer, is_email_confirmed = await service.get_token(
+        token, is_trainer, is_email_confirmed, nickname = await service.get_token(
             credentials.email,
             credentials.password,
             credentials.time_zone
@@ -49,7 +49,8 @@ class UserService:
             'access_token': token,
             'is_trainer': is_trainer,
             'email': credentials.email,
-            'is_email_confirmed': is_email_confirmed
+            'is_email_confirmed': is_email_confirmed,
+            'nickname': nickname
         }
 
     @staticmethod

@@ -97,6 +97,25 @@ async def update_user(
         return JSONResponse(status_code=status.HTTP_409_CONFLICT, content={'detail': str(e)})
 
 
+@router.patch(
+    path='/user/update_by_token',
+    summary='Внести изменения о пользователе',
+    description='Внести изменения о пользователе',
+    # dependencies=[Depends(oauth2_scheme)],
+)
+async def update_user_by_token(
+        token: str = Depends(oauth2_scheme),
+        data: dict = Body(...),
+        user: UserService = Depends(get_service),
+):
+    try:
+        current_user = await user.get_current_user(token)
+        await user.update(user_id=current_user.user_id, **data)
+        return JSONResponse(status_code=status.HTTP_200_OK, content={'message': 'ok'})
+    except HTTPException as e:
+        return JSONResponse(status_code=status.HTTP_409_CONFLICT, content={'detail': str(e)})
+
+
 @router.get(
     path='/user/get_tg_ids',
     dependencies=[Depends(oauth2_scheme)],

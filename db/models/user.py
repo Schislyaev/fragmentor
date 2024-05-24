@@ -22,6 +22,7 @@ class User(Base):
     user_id = Column(UUID(as_uuid=True), default=uuid4, primary_key=True)
     email = Column(String(60), nullable=False, unique=True)
     password = Column(String(60), nullable=True)
+    nickname = Column(String(15), nullable=True, unique=True)
     is_trainer = Column(Boolean, default=False)
     is_superuser = Column(Boolean, default=False)
     is_email_confirmed = Column(Boolean, default=False)
