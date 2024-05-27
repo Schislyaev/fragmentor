@@ -29,11 +29,11 @@ router = APIRouter()
 async def login(request: Request):
     time_zone = request.query_params.get('timezone')
     request.session['time_zone'] = time_zone
-    redirect_uri = str(request.url_for('/google/auth'))
+    redirect_uri = str(request.url_for('auth'))
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
 
-@router.get('/google/auth')
+@router.get(path='/google/auth', name='auth')
 async def auth(
         request: Request,
         service: UserService = Depends(get_service)
