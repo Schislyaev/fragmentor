@@ -71,6 +71,10 @@ class Settings(BaseSettings):
     # reCaptchaV3
     google_recaptcha_key: SecretStr = ''
 
+    # Google OAuth2
+    google_client_id: SecretStr = ''
+    google_client_secret: SecretStr = ''
+
     template_dir: str = ''
 
     debug: int = 1

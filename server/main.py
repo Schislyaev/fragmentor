@@ -6,6 +6,7 @@ from cashews import cache
 from fastapi.applications import FastAPI
 from fastapi.responses import JSONResponse, ORJSONResponse
 from starlette.requests import Request
+from starlette.middleware.sessions import SessionMiddleware
 
 from AdminPanel.admin_panel import get_admin_panel
 from core.fastapi_config import config
@@ -13,7 +14,8 @@ from core.settings import settings
 # from core.logger import log
 # from db import redis
 from db.postgres import init_models, init_table  # noqa
-from server.api.v11 import booking, payment, schedules, token, users
+from server.api.v11 import booking, payment, schedules, token, users, google_oauth
+from starlette.middleware import Middleware
 
 
 @asynccontextmanager
@@ -56,19 +58,21 @@ app = FastAPI(
 )
 
 
-@app.middleware("http")
-async def add_from_cache_headers(request: Request, call_next):
-    body = await request.body()  # noqa
-    response = await call_next(request)
-    return response
+# @app.middleware("http")
+# async def add_from_cache_headers(request: Request, call_next):
+#     body = await request.body()  # noqa
+#     response = await call_next(request)
+#     return response
 
 
+app.add_middleware(SessionMiddleware, secret_key="some-random-string")
 app.include_router(users.router, prefix='/api/v11', tags=['USERS'])
 app.include_router(token.router, prefix='/api/v11', tags=['TOKENS'])
 app.include_router(schedules.router, prefix='/api/v11', tags=['SCHEDULES'])
 app.include_router(booking.router, prefix='/api/v11', tags=['BOOKINGS'])
 # app.include_router(create_channel.router, prefix='/api/v11', tags=['DISCORD'])
 app.include_router(payment.router, prefix='/api/v11', tags=['PAYMENT'])
+app.include_router(google_oauth.router, prefix='/api/v11')
 
 
 @app.exception_handler(ValueError)

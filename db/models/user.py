@@ -59,9 +59,11 @@ class User(Base):
     @classmethod
     async def add(cls, data: dict):
         async with async_session() as session:
-            session.add(cls(**data))
+            new_user = cls(**data)
+            session.add(new_user)
             try:
                 await session.commit()
+                return new_user
             except IntegrityError:
                 await session.rollback()
                 raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail={"error": "User already exists"})

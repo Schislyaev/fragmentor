@@ -6,8 +6,9 @@ from fastapi.responses import JSONResponse
 
 from db.models.user import User
 from server.api.schemas.user import Credentials
-from services.security import check_user, verify_confirmation_token
+from services.security import check_user, verify_confirmation_token, create_access_token
 from services.tokens import get_token_service
+from services.helpers import generate_random_string
 
 
 class UserService:
@@ -113,6 +114,33 @@ class UserService:
             'is_trainer': user.is_trainer,
             'email': email,
             'is_email_confirmed': True
+        }
+
+    async def login_google(self, email, time_zone):
+
+        user = await User.get_by_email(email)
+        if not user:
+            google_user = {
+                'email': email,
+                'password': generate_random_string(15),
+                'is_email_confirmed': True,
+            }
+            user = await User.add(data=google_user)
+
+        access_token = create_access_token({
+            'sub': user.email,
+            'time_zone': time_zone,
+            'id': str(user.user_id),
+            'is_superuser': user.is_superuser,
+            'nickname': user.nickname
+        })
+
+        return {
+            'access_token': {'access_token': access_token, 'token_type': 'Bearer'},
+            'is_trainer': user.is_trainer,
+            'is_email_confirmed': user.is_email_confirmed,
+            'nickname': user.nickname,
+            'email': user.email
         }
 
 
