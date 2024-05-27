@@ -18,7 +18,7 @@ oauth.register(
     client_secret=G_CLIENT_SECRET,
     client_kwargs={
         'scope': 'openid email profile',
-        'redirect_url': f'https://{settings.front_host}/api/v11/google/auth'
+        'redirect_url': f'https://fragmentor.website/api/v11/google/auth'
     }
 )
 
