@@ -18,7 +18,7 @@ oauth.register(
     client_secret=G_CLIENT_SECRET,
     client_kwargs={
         'scope': 'openid email profile',
-        'redirect_url': f'http://{settings.front_host}:{81}/api/v11/google/auth'
+        'redirect_url': f'https://{settings.front_host}:{81}/api/v11/google/auth'
     }
 )
 
@@ -50,7 +50,7 @@ async def auth(
         #                     f"is_trainer={response.get('is_trainer')}&"
         #                     f"is_email_confirmed={response.get('is_email_confirmed')}"
         # )
-        frontend_redirect_url = f"http://{settings.front_host}:{settings.front_port}/oauth/callback?data={quote(json.dumps(response))}"
+        frontend_redirect_url = f"https://{settings.front_host}:{settings.front_port}/oauth/callback?data={quote(json.dumps(response))}"
         return RedirectResponse(frontend_redirect_url)
         # return JSONResponse(status_code=status.HTTP_200_OK, content=response)
     except OAuthError as e:
