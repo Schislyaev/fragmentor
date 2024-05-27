@@ -18,7 +18,7 @@ oauth.register(
     client_secret=G_CLIENT_SECRET,
     client_kwargs={
         'scope': 'openid email profile',
-        'redirect_url': f'http://{settings.front_host}:{settings.front_port}/api/v11/google/auth'
+        'redirect_url': f'http://{settings.front_host}:{81}/api/v11/google/auth'
     }
 )
 
