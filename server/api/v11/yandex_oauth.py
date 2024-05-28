@@ -20,7 +20,7 @@ async def login(request: Request):
 
     auth_url = (
         "https://oauth.yandex.ru/authorize?"
-        f"response_type=code&client_id={Y_CLIENT_ID}&redirect_uri=https://fragmentor.website/api/v11/yandex/auth"
+        f"response_type=code&client_id={Y_CLIENT_ID}&redirect_uri=https://fragmentor.website/yandex/auth"
     )
     return RedirectResponse(auth_url)
 
