@@ -14,7 +14,7 @@ from core.settings import settings
 # from core.logger import log
 # from db import redis
 from db.postgres import init_models, init_table  # noqa
-from server.api.v11 import booking, payment, schedules, token, users, google_oauth
+from server.api.v11 import booking, payment, schedules, token, users, google_oauth, yandex_oauth
 from starlette.middleware import Middleware
 
 
@@ -73,6 +73,7 @@ app.include_router(booking.router, prefix='/api/v11', tags=['BOOKINGS'])
 # app.include_router(create_channel.router, prefix='/api/v11', tags=['DISCORD'])
 app.include_router(payment.router, prefix='/api/v11', tags=['PAYMENT'])
 app.include_router(google_oauth.router, prefix='/api/v11')
+app.include_router(yandex_oauth.router, prefix='/api/v11')
 
 
 @app.exception_handler(ValueError)

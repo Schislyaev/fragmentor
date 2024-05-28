@@ -75,6 +75,10 @@ class Settings(BaseSettings):
     google_client_id: SecretStr = ''
     google_client_secret: SecretStr = ''
 
+    # Yandeх OAuth2
+    yandex_client_id: SecretStr = ''
+    yandex_client_secret: SecretStr = ''
+
     template_dir: str = ''
 
     debug: int = 1

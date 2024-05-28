@@ -42,7 +42,7 @@ async def auth(
         token = await oauth.google.authorize_access_token(request)
         user = token['userinfo']
         time_zone = request.session.get('time_zone')
-        response = await service.login_google(user.get('email'), time_zone)
+        response = await service.login_oauth(user.get('email'), time_zone)
         # frontend_redirect_url = (
         #                     f"http://localhost:3000/oauth/callback?email={response.get('email')}&"
         #                     f"access_token={response.get('access_token')}&"

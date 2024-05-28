@@ -116,7 +116,7 @@ class UserService:
             'is_email_confirmed': True
         }
 
-    async def login_google(self, email, time_zone):
+    async def login_oauth(self, email, time_zone):
 
         user = await User.get_by_email(email)
         if not user:
