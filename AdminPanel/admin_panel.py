@@ -116,7 +116,7 @@ def get_admin_panel(app: FastAPI):
         app=app,
         engine=engine,
         authentication_backend=AdminAuth(secret_key='test'),
-        base_url='/3641aa34-598a-429f-b1e4-986a45b97506/admin',
+        base_url='/admin/3641aa34-598a-429f-b1e4-986a45b97506',
         templates_dir=settings.admin_panel_templates
     )
 
