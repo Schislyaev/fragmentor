@@ -18,6 +18,7 @@ from services.security import (credentials_exception, get_password_hash,
 
 
 class AdminAuth(AuthenticationBackend):
+
     async def login(self, request: Request) -> bool:
         form = await request.form()
         username, password, re_captcha_token = form["username"], form["password"], form['g-recaptcha-response']
@@ -115,7 +116,8 @@ def get_admin_panel(app: FastAPI):
         app=app,
         engine=engine,
         authentication_backend=AdminAuth(secret_key='test'),
-        base_url='/admin'
+        base_url='/3641aa34-598a-429f-b1e4-986a45b97506/admin',
+        templates_dir=settings.admin_panel_templates
     )
 
     # class UserAdmin(ModelView, model=User):

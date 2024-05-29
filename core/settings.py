@@ -81,6 +81,9 @@ class Settings(BaseSettings):
 
     template_dir: str = ''
 
+    # SQLAdmin Panel
+    admin_panel_templates: str = ''
+
     debug: int = 1
 
     project_root_path: str = str(pathlib.Path(__file__).parent.parent)

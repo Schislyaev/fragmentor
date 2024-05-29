@@ -64,8 +64,8 @@ app = FastAPI(
 #     response = await call_next(request)
 #     return response
 
-
-app.add_middleware(SessionMiddleware, secret_key="some-random-string")
+app.add_middleware(SessionMiddleware, secret_key="test", max_age=None)
+# app.add_middleware(SessionMiddleware, secret_key="test")
 app.include_router(users.router, prefix='/api/v11', tags=['USERS'])
 app.include_router(token.router, prefix='/api/v11', tags=['TOKENS'])
 app.include_router(schedules.router, prefix='/api/v11', tags=['SCHEDULES'])
