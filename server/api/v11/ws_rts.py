@@ -34,7 +34,7 @@ async def websocket_endpoint(websocket: WebSocket):
         while True:
             data = await websocket.receive_text()
             print(f"Received: {data} from {websocket}")
-            await manager.broadcast(data, websocket)  # Изменено, чтобы исключить повторную сериализацию в JSON
+            await manager.broadcast(json.dumps({"signal": data}), websocket)  # Изменено, чтобы исключить повторную сериализацию в JSON
     except WebSocketDisconnect as e:
         print(f"WebSocket disconnected: {str(e)}")
         manager.disconnect(websocket)
