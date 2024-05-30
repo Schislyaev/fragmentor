@@ -37,7 +37,7 @@ async def websocket_endpoint(websocket: WebSocket):
             mes_id = str(uuid4())
             data = await websocket.receive_text()
             print(f"Received: {mes_id} from {websocket}")
-            await manager.broadcast(json.dumps({"signal": mes_id}), websocket)  # Изменено, чтобы исключить повторную сериализацию в JSON
+            await manager.broadcast(json.dumps({"signal": data}), websocket)  # Изменено, чтобы исключить повторную сериализацию в JSON
             print(f'sent {mes_id} to all')
     except WebSocketDisconnect as e:
         print(f"WebSocket disconnected: {str(e)}")
