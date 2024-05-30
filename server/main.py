@@ -14,7 +14,7 @@ from core.settings import settings
 # from core.logger import log
 # from db import redis
 from db.postgres import init_models, init_table  # noqa
-from server.api.v11 import booking, payment, schedules, token, users, google_oauth, yandex_oauth
+from server.api.v11 import booking, payment, schedules, token, users, google_oauth, yandex_oauth, ws_rts
 from starlette.middleware import Middleware
 
 
@@ -65,15 +65,14 @@ app = FastAPI(
 #     return response
 
 app.add_middleware(SessionMiddleware, secret_key="test", max_age=None)
-# app.add_middleware(SessionMiddleware, secret_key="test")
 app.include_router(users.router, prefix='/api/v11', tags=['USERS'])
 app.include_router(token.router, prefix='/api/v11', tags=['TOKENS'])
 app.include_router(schedules.router, prefix='/api/v11', tags=['SCHEDULES'])
 app.include_router(booking.router, prefix='/api/v11', tags=['BOOKINGS'])
-# app.include_router(create_channel.router, prefix='/api/v11', tags=['DISCORD'])
 app.include_router(payment.router, prefix='/api/v11', tags=['PAYMENT'])
 app.include_router(google_oauth.router, prefix='/api/v11')
 app.include_router(yandex_oauth.router, prefix='/api/v11')
+app.include_router(ws_rts.router, prefix='/api/v11')
 
 
 @app.exception_handler(ValueError)
