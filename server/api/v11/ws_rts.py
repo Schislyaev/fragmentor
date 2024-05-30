@@ -34,7 +34,7 @@ async def websocket_endpoint(websocket: WebSocket):
     await manager.connect(websocket)
     try:
         while True:
-            mes_id = uuid4()
+            mes_id = str(uuid4())
             data = await websocket.receive_text()
             print(f"Received: {mes_id} from {websocket}")
             await manager.broadcast(json.dumps({"signal": mes_id}), websocket)  # Изменено, чтобы исключить повторную сериализацию в JSON
