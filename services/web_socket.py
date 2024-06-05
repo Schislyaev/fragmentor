@@ -14,9 +14,11 @@ from services.security import create_access_token
 class WebSocketManager:
     def __init__(self):
         self.active_connections: Dict[str, WebSocket] = {}
+        self.cache = []
 
-    async def connect(self, websocket: WebSocket):
+    async def connect(self, websocket: WebSocket, user_id: str):
         await websocket.accept()
+        self.active_connections[user_id] = websocket
 
     async def disconnect(self, user_id: str):
         if user_id in self.active_connections:
@@ -27,9 +29,16 @@ class WebSocketManager:
         if websocket:
             await websocket.send_text(message)
 
-    async def broadcast(self, message: str):
-        for connection in self.active_connections.values():
-            await connection.send_text(message)
+    async def broadcast(self, message: str | dict, user_id: str):
+        for key, connection in self.active_connections.items():
+            if (key not in self.cache) and (key != user_id):
+                await connection.send_json(message)
+                self.cache.append(key)
+
+    async def notify_users(self):
+        users_list = list(self.active_connections.keys())
+        for user in self.active_connections.values():
+            await user.send_json({"type": "allUsers", "users": users_list})
 
 
 async def send_message_to_websocket(status: str, booking_id: int):
